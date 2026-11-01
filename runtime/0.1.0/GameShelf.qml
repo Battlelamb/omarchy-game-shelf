@@ -71,9 +71,9 @@ Item {
         root.message = data.message || (code !== 0 ? strings.t("loadFailed") : "");
     }
     function activate(verb) {
-        if (!root.opened || root.opening || root.actionBusy || action.running || catalogue.running || lockProbe.running || root.actions.indexOf(verb) < 0 || !root.matches.length) return;
-        if (root.selected < 0 || root.selected >= root.matches.length) return;
-        var id = root.matches[root.selected].id;
+        if (!root.opened || root.opening || root.actionBusy || action.running || catalogue.running || lockProbe.running || root.actions.indexOf(verb) < 0) return;
+        if (verb !== "restore" && (root.selected < 0 || root.selected >= root.matches.length)) return;
+        var id = verb === "restore" ? "restore:last" : root.matches[root.selected].id;
         root.actionBusy = true; root.actionGeneration = root.generation; root.message = "";
         action.command = ["/usr/bin/python3", backendPath, "action", "--id", id, "--verb", verb, "--apply"];
         action.start();
@@ -83,7 +83,10 @@ Item {
         root.actionBusy = false;
         var result = Controller.actionResult(text, code, status, error);
         root.message = result.message;
-        if (result.ok) root.loadCatalogue();
+        if (result.ok) {
+            if (result.actions !== undefined) root.actions = result.actions;
+            else root.loadCatalogue();
+        }
     }
     Commons.Translations { id: strings; directory: Qt.resolvedUrl("i18n") }
     Timer { interval: 50; repeat: true; running: root.opening; onTriggered: root.attemptAdmission() }
@@ -232,6 +235,9 @@ Item {
                     ColumnLayout {
                         visible: !card.compact && root.selectedRow !== null
                         Layout.preferredWidth: Style.space(320)
+                        Layout.minimumWidth: 0
+                        Layout.maximumWidth: Style.space(320)
+                        Layout.fillWidth: false
                         Layout.fillHeight: true
                         Rectangle {
                             Layout.fillWidth: true
@@ -240,7 +246,7 @@ Item {
                             color: root.selectedRow && root.selectedRow.color ? root.selectedRow.color : Commons.Color.menu.background
                             border.color: Commons.Color.menu.border
                             border.width: 1
-                            Image { anchors.fill: parent; anchors.margins: Style.space(8); source: root.selectedRow ? Controller.imageUrl(root.selectedRow.preview) : ""; fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize.width: 640; sourceSize.height: 640 }
+                            Image { anchors.fill: parent; anchors.margins: Style.space(8); source: !card.compact && root.selectedRow ? Controller.imageUrl(root.selectedRow.preview) : ""; fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize.width: 640; sourceSize.height: 640 }
                             Label { anchors.centerIn: parent; text: root.selectedRow ? root.selectedRow.glyph || root.selectedRow.label.charAt(0) : ""; visible: root.selectedRow && !root.selectedRow.preview && !root.selectedRow.color; font.pixelSize: Style.space(72) }
                         }
                         Label { Layout.fillWidth: true; text: root.selectedRow ? root.selectedRow.label : ""; font.bold: true }
@@ -252,7 +258,7 @@ Item {
                     Layout.fillWidth: true
                     spacing: Style.space(8)
                     Button { text: strings.t(root.primaryVerb || "select"); enabled: root.selectedRow !== null && !!root.primaryVerb && !root.actionBusy && !catalogue.running; bordered: true; onClicked: root.activate(root.primaryVerb) }
-                    Button { text: strings.t("restore"); visible: root.actions.indexOf("restore") >= 0; enabled: !root.actionBusy && root.selectedRow !== null; bordered: true; onClicked: root.activate("restore") }
+                    Button { text: strings.t("restore"); visible: root.actions.indexOf("restore") >= 0; enabled: !root.actionBusy && !catalogue.running && !action.running && !lockProbe.running; bordered: true; onClicked: root.activate("restore") }
                     Button { text: strings.t("confirm"); visible: root.actions.indexOf("confirm") >= 0; enabled: !root.actionBusy && root.selectedRow !== null; bordered: true; onClicked: root.activate("confirm") }
                     Button { text: strings.t("refresh"); enabled: !root.actionBusy && !catalogue.running; onClicked: root.loadCatalogue() }
                     Label { text: root.actionBusy ? strings.t("working") : strings.t("keys"); font.pixelSize: Style.font.bodySmall; opacity: 0.6; height: Style.space(32); verticalAlignment: Text.AlignVCenter }

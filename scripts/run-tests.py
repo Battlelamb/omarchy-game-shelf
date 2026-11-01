@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 """Offline test runner. No user HOME, environment, network or live IPC crosses in."""
-import os,shutil,subprocess,sys,tempfile
+import os,subprocess,sys,tempfile
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 if sys.argv[1:] not in ([],['--backend-only']):raise SystemExit('Usage: run-tests.py [--backend-only]')
 backend_only=bool(sys.argv[1:]);scratch=os.environ.get('TMPDIR')
 if not scratch or not Path(scratch).is_dir():raise SystemExit('TMPDIR must name an existing approved scratch directory')
-node=shutil.which('node')
-if not backend_only and not node:raise SystemExit('Node is required for component/native process tests')
+node='/usr/bin/node' if os.access('/usr/bin/node',os.X_OK) else None
+if not backend_only and not node:raise SystemExit('System /usr/bin/node is required for component/native process tests; PATH shims are not used')
 with tempfile.TemporaryDirectory(prefix='omarchy-plugin-test-',dir=scratch) as temporary:
  tmp=Path(temporary);stock=tmp/'stock';stock.mkdir()
  deny=tmp/'deny';deny.write_text('#!/usr/bin/python3\nimport sys\nsys.stderr.write("Production setter masked in offline tests\\n")\nsys.exit(126)\n');deny.chmod(0o755)

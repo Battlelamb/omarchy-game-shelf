@@ -176,7 +176,7 @@ def lutris_cover(provider, slug):
     return None
 
 
-def steam_rows():
+def steam_rows(with_previews=True):
     rows, seen, skipped, budget = [], set(), 0, 2048
     roots = steam_roots()
     for root in roots:
@@ -210,7 +210,7 @@ def steam_rows():
                     continue
                 seen.add(ident)
                 row = {'id':'steam:'+ident, 'label':name, 'detail':f'Steam · AppID {ident} · {component}'}
-                image = steam_cover(ident, roots)
+                image = steam_cover(ident, roots) if with_previews else None
                 if image:
                     row['preview'] = image
                 rows.append(row)
@@ -221,7 +221,7 @@ def steam_rows():
     return rows, skipped
 
 
-def lutris_rows():
+def lutris_rows(with_previews=True):
     locations = [('native', data_home()/'lutris/pga.db'),
                  ('flatpak', Path.home()/'.var/app/net.lutris.Lutris/data/lutris/pga.db')]
     rows, notes = [], []
@@ -259,7 +259,7 @@ def lutris_rows():
                 if plain(directory):
                     detail += ' · '+plain(directory)
                 row = {'id':f'lutris:{provider}:{ident}', 'label':name, 'detail':detail[:500]}
-                image = lutris_cover(provider, slug)
+                image = lutris_cover(provider, slug) if with_previews else None
                 if image:
                     row['preview'] = image
                 rows.append(row)
@@ -270,9 +270,9 @@ def lutris_rows():
     return rows, notes
 
 
-def game_data():
-    steam, skipped = steam_rows()
-    lutris, notes = lutris_rows()
+def game_data(with_previews=True):
+    steam, skipped = steam_rows(with_previews=with_previews)
+    lutris, notes = lutris_rows(with_previews=with_previews)
     rows = steam + lutris
     status = 'Steam client available.' if shutil.which('steam') or flatpak_installed('com.valvesoftware.Steam') else 'Steam client unavailable; metadata only.'
     lutris_status = 'Lutris client available (provider must match the selected database).' if shutil.which('lutris') or flatpak_installed('net.lutris.Lutris') else 'Lutris client unavailable; metadata only.'
@@ -363,7 +363,7 @@ def main():
                 raise ValueError('Explicit --apply is required; nothing changed.')
             if args.verb != 'launch':
                 raise ValueError('Unsupported action; only launch is available.')
-            known, _ = game_data()
+            known, _ = game_data(with_previews=False)
             if not any(r['id'] == args.id for r in known):
                 raise ValueError('Selection is unknown or no longer installed; refresh the catalogue.')
             run_helper(launch_argv(args.id))

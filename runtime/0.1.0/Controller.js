@@ -11,7 +11,7 @@ function utf8Bytes(s) {
 }
 function stringValue(v,max) { return typeof v==='string' && v.length<=max && !/[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(v); }
 function catalog(raw) {
-    var empty={rows:[],actions:[],message:'Unable to load catalogue',actionLabel:''};
+    var empty={rows:[],actions:[],message:'Unable to load catalogue'};
     if(typeof raw!=='string'||raw.length>1048576||utf8Bytes(raw)>1048576) return empty;
     var data;
     try { data=JSON.parse(raw); } catch(e) { return empty; }
@@ -19,7 +19,9 @@ function catalog(raw) {
     var rows=[],seen=Object.create(null);
     for(var i=0;i<data.rows.length;i++) {
         var r=data.rows[i];
-        if(!r||!stringValue(r.id,256)||!r.id||seen[r.id]||!stringValue(r.label,160)||!r.label) continue;
+        if(!r||!stringValue(r.id,256)||!r.id||seen[r.id]||!stringValue(r.label,320)||!r.label) continue;
+        // Native QV4's Array.from does not combine surrogate pairs.
+        if(r.label.length>160&&r.label.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'x').length>160) continue;
         seen[r.id]=true;
         var out={id:r.id,label:r.label,detail:stringValue(r.detail,1024)?r.detail:'',preview:'',glyph:'',color:''};
         if(stringValue(r.preview,4096) && r.preview[0]==='/' && !/[\r\n]/.test(r.preview)) out.preview=r.preview;
@@ -29,7 +31,7 @@ function catalog(raw) {
     }
     var allowed=['copy','launch','apply','export','restore','confirm'];
     var actions=Array.isArray(data.actions)?data.actions.filter(function(a){return allowed.indexOf(a)!==-1;}):[];
-    return {rows:rows,actions:actions,message:stringValue(data.message,1024)?data.message:'',actionLabel:stringValue(data.actionLabel,48)?data.actionLabel:''};
+    return {rows:rows,actions:actions,message:stringValue(data.message,1024)?data.message:''};
 }
 function step(index, delta, count) {
     return Math.max(0, Math.min(Math.max(0, count - 1), index + delta));
@@ -37,10 +39,16 @@ function step(index, delta, count) {
 function filter(rows,query) {
     if(!Array.isArray(rows)||typeof query!=='string'||query.length>128) return [];
     var words=query.toLowerCase().trim().split(/\s+/).filter(function(w){return w.length>0;});
-    return rows.filter(function(r){
-        var text=(r.label+' '+r.detail).toLowerCase();
-        return words.every(function(w){return text.indexOf(w)!==-1;});
-    }).slice(0,256);
+    if(!words.length) return rows.slice(0,256);
+    var matches=[];
+    for(var i=0;i<rows.length;i++) {
+        var r=rows[i],text=(r.label+' '+r.detail).toLowerCase();
+        if(words.every(function(w){return text.indexOf(w)!==-1;})) {
+            matches.push(r);
+            if(matches.length===256) break;
+        }
+    }
+    return matches;
 }
 function imageUrl(path) {
     if(typeof path!=='string'||path[0]!=='/'||/[\x00-\x1f]/.test(path)||path.length>4096) return '';
@@ -52,6 +60,8 @@ function actionResult(raw,code,status,error) {
     try {
         var d=JSON.parse(raw);
         if(d && d.ok===true && code===0) result.ok=true;
+        var allowed=['copy','launch','apply','export','restore','confirm'];
+        if(result.ok && Array.isArray(d.actions) && d.actions.length<=allowed.length && d.actions.every(function(a,i){return allowed.indexOf(a)!==-1 && d.actions.indexOf(a)===i;})) result.actions=d.actions;
         if(d && stringValue(d.message,1024)) result.message=(result.ok?'':'Action failed: ')+d.message;
         else if(result.ok) result.message='Done';
     } catch(e) {}

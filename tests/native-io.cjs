@@ -32,6 +32,7 @@ function run(name, body, {missingTimeout = false, limit = 1024, childPidFile = '
   if (process.env.NATIVE_IO_CASE && !name.includes(process.env.NATIVE_IO_CASE)) return;
   if (childPidFile) fs.rmSync(childPidFile, {force:true});
   const dir = fs.mkdtempSync('/tmp/native-io-');
+  fs.copyFileSync(require('./runtime-path.cjs')('Controller.js'), dir + '/Controller.js');
   assert.ok(helper.includes('StdioCollector { id: collected }'), 'collector observation must attach');
   fs.writeFileSync(dir + '/BoundedProcess.qml', (missingTimeout
     ? helper.replace('"/usr/bin/timeout"', '"/no-such-timeout"') : helper)
@@ -43,6 +44,7 @@ function run(name, body, {missingTimeout = false, limit = 1024, childPidFile = '
     }`));
   fs.writeFileSync(dir + '/shell.qml', `import QtQuick
 import Quickshell
+import "Controller.js" as Controller
 ShellRoot {
   id: test
   property int completions: 0
@@ -79,6 +81,17 @@ function completion(command, checks, options) {
   }
   Timer { id: settle; interval: 100; onTriggered: { console.log("PASS native-case"); Qt.exit(0); } }`, options);
 }
+run('native catalogue preserves supplementary Unicode label boundaries', `
+ Component.onCompleted: Qt.callLater(function() {
+   var labels=["A".repeat(160),"A".repeat(159)+"😀","😀".repeat(160)];
+   for(var i=0;i<labels.length;i++) {
+     var rows=Controller.catalog(JSON.stringify({rows:[{id:"one",label:labels[i]}]})).rows;
+     check(rows.length===1 && rows[0].label===labels[i],"native Unicode label admission");
+   }
+   check(Controller.catalog(JSON.stringify({rows:[{id:"too-long",label:"😀".repeat(161)}]})).rows.length===0,"native Unicode label bound");
+   console.log("PASS native-case");Qt.exit(0);
+ })
+`);
 run('cancel acknowledgment prevents delayed backend work', `
  Component.onCompleted: {
    io.completed.connect(function() { check(false, "cancelled run cannot complete"); });

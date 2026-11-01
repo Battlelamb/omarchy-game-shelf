@@ -2,7 +2,7 @@
 
 Browse locally installed Steam and Lutris games without replacing their clients.
 
-**Local implementation candidate. Not installed, not published and not yet visually approved.**
+**Locally tested candidate. Not installed or published. Real-desktop/GPU qualification is pending.**
 
 ## Use after deliberate installation
 
@@ -15,17 +15,17 @@ omarchy-shell shell toggle leviathan.game-shelf '{}'
 
 These are future install/use commands, not commands run during this task. The plugin is not enabled automatically by building it. No shortcut is created.
 
-Type to search; arrows select; Enter or the primary button explicitly acts. Clicking a card selects it only. Refresh rereads the catalogue; Escape/outside dismiss. Restore/Keep effect are shown only when the backend advertises them. Actions use fresh backend membership, not arbitrary row commands. Backend details and limitations: [BACKEND.md](BACKEND.md).
+Type to search; arrows select; Enter or the primary button explicitly acts. Clicking a card selects it only. Refresh rereads the catalogue; Escape/outside dismiss. Where advertised, Restore follows the owned receipt even when the search has no matching row. Restore/Keep effect are shown only when the backend advertises them. Actions use fresh backend membership, not arbitrary row commands. Backend details and limitations: [BACKEND.md](BACKEND.md).
 
 The interface uses native shell colours, reduced-motion behavior, plain-text labels, translated strings (English fallback), virtualized bounded result grids and local image previews. Full IME/accessibility/theme/multi-output qualification remains unverified until recorded.
 
 ## Verify without opening windows
 
 ```bash
-bash test.sh
+env -u PYTHONPATH PATH=/usr/bin bash test.sh
 ```
 
-The runner uses no-network bubblewrap with fake HOME and a cleared environment; Node controller/source-handler checks and Python backend tests use fixtures. Shimmed external-tool tests establish adapter behavior, not real GPU/game/theme success. No `test.sh` command opens an overlay or uses the real clipboard. Native private-session coverage, if performed, is separately recorded in docs/VALIDATION.md.
+The runner uses no-network bubblewrap with fake HOME and a cleared environment; Node controller/source-handler checks and Python backend tests use fixtures. Shimmed external-tool tests establish adapter behavior, not real GPU/game/theme success. No `test.sh` command opens an overlay or uses the real clipboard. The runner pins system `/usr/bin/node` rather than ambient tool-manager shims. Backend-only checks remain available without Node. Private native wide/compact UI, actual backend/UI bridge coverage and exact limits are recorded in [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Safety
 

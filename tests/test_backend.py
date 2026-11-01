@@ -38,13 +38,26 @@ class BackendTests(unittest.TestCase):
         p = self.home / 'calls.jsonl'
         return [json.loads(s) for s in p.read_text().splitlines()] if p.exists() else []
 
-    def cli(self, *args, rc=0):
-        r = subprocess.run(['/usr/bin/python3',str(BACKEND),*args],cwd='/',env=self.env,
+    def cli(self, *args, rc=0, artwork_opens=None):
+        command = ['/usr/bin/python3',str(BACKEND),*args]
+        if artwork_opens is not None:
+            command = ['/usr/bin/python3','-c',
+                       'import json,os,runpy,sys\n'
+                       'opened=[]\n'
+                       'def audit(event,args):\n'
+                       ' if event == "open" and isinstance(args[0],str) and args[0].endswith((".png",".jpg",".jpeg")): opened.append(args[0])\n'
+                       'sys.addaudithook(audit)\n'
+                       'sys.argv=sys.argv[1:]\n'
+                       'try: runpy.run_path(sys.argv[0],run_name="__main__")\n'
+                       'finally: print(json.dumps(len(opened)),file=sys.stderr)\n',str(BACKEND),*args]
+        r = subprocess.run(command,cwd='/',env=self.env,
                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=15)
         self.assertEqual(r.returncode,rc,r.stderr.decode()+r.stdout.decode())
         self.assertTrue(r.stdout.strip(), 'backend must emit JSON')
         self.assertLessEqual(len(r.stdout),1048576)
         self.assertNotIn(b'Traceback',r.stdout+r.stderr)
+        if artwork_opens is not None:
+            artwork_opens.append(json.loads(r.stderr))
         return json.loads(r.stdout)
 
     def test_offline_box_is_private(self):
@@ -240,6 +253,45 @@ class BackendTests(unittest.TestCase):
         hashed.write_bytes(b'not an image')
         self.assertNotIn('preview',next(r for r in self.cli('catalog')['rows'] if r['id']=='steam:42'))
         self.assertEqual(self.calls(),[])
+
+    def test_launch_membership_skips_artwork_but_keeps_fresh_provider_validation(self):
+        import base64
+        png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l2kAAAAASUVORK5CYII=')
+        self.steam();missing=self.steam('43')
+        native=self.lutris();self.lutris(flatpak=True)
+        covers={'steam:42':self.home/'.local/share/Steam/appcache/librarycache/42_library_600x900.png',
+                'lutris:native:7':native.parent/'coverart/sample-quest.png',
+                'lutris:flatpak:7':self.home/'.var/app/net.lutris.Lutris/data/lutris/coverart/sample-quest.png'}
+        for path in covers.values():
+            path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(png)
+        for name in ('steam','lutris','flatpak'):
+            self.shim(name)
+        marker=self.put('.local/share/flatpak/app/net.lutris.Lutris/current/active/metadata','[Application]\nname=net.lutris.Lutris\n')
+        catalog_opens=[]
+        rows={r['id']:r for r in self.cli('catalog',artwork_opens=catalog_opens)['rows']}
+        self.assertEqual(set(rows),set(covers)|{'steam:43'})
+        for ident,path in covers.items():
+            self.assertEqual(rows[ident]['preview'],str(path))
+        self.assertNotIn('preview',rows['steam:43'])
+        self.assertGreater(catalog_opens[0],0)
+        action_opens=[]
+        expected={'steam:42':['steam','steam://rungameid/42'],
+                  'steam:43':['steam','steam://rungameid/43'],
+                  'lutris:native:7':['lutris','lutris:rungameid/7'],
+                  'lutris:flatpak:7':['flatpak','run','net.lutris.Lutris','lutris:rungameid/7']}
+        for ident in expected:
+            self.assertTrue(self.cli('action','--id',ident,'--verb','launch','--apply',artwork_opens=action_opens)['ok'])
+        self.assertEqual([[Path(c['argv'][0]).name,*c['argv'][1:]] for c in self.calls()],list(expected.values()))
+        missing.write_text(missing.read_text().replace('"StateFlags" "4"','"StateFlags" "2"'))
+        from contextlib import closing
+        with closing(sqlite3.connect(native)) as conn:
+            conn.execute('UPDATE games SET installed=0');conn.commit()
+        marker.unlink()
+        for ident in ('steam:43','lutris:native:7','lutris:flatpak:7','steam:042','lutris:other:7'):
+            self.assertFalse(self.cli('action','--id',ident,'--verb','launch','--apply',rc=1,artwork_opens=action_opens)['ok'])
+        self.assertEqual(len(self.calls()),len(expected))
+        print('ARTWORK_EVIDENCE '+json.dumps({'catalog_opens':catalog_opens,'action_opens':action_opens}),flush=True)
+        self.assertEqual(action_opens,[0]*9)
 
     def test_catalog_display_limit_keeps_full_game_membership(self):
         for n in range(1,1031):

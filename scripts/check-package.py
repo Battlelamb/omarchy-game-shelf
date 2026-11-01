@@ -8,7 +8,7 @@ assert m['id'].startswith('leviathan.') and m['kinds']==['overlay']
 assert m.get('keepLoaded') is True,'Keep helper ownership across native host hide/unload'
 entry=m['entryPoints']['overlay']; assert entry.startswith('runtime/0.1.0/') and (r/entry).is_file()
 assert len(m['description'])<=500
-for f in ['runtime/0.1.0/backend.py','runtime/0.1.0/Controller.js','runtime/0.1.0/BoundedProcess.qml','runtime/0.1.0/i18n/en.json','README.md','LICENSE','NOTICE.md','NOTICE.backend.md','BACKEND.md','tests/test_backend.py','tests/controller.test.cjs','tests/ui.test.cjs']:
+for f in ['runtime/0.1.0/backend.py','runtime/0.1.0/Controller.js','runtime/0.1.0/BoundedProcess.qml','runtime/0.1.0/i18n/en.json','README.md','LICENSE','NOTICE.md','NOTICE.backend.md','BACKEND.md','tests/test_backend.py','tests/controller.test.cjs','tests/ui.test.cjs','tests/runner.test.cjs']:
  assert (r/f).is_file(),f
 for p in r.rglob('*'):
  if '.git' in p.parts or 'release-output' in p.parts:continue
