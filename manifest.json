@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "leviathan.game-shelf",
+  "name": "Game Shelf",
+  "version": "0.1.0",
+  "author": "Ömer Eren",
+  "license": "GPL-3.0-only",
+  "description": "Browse locally installed Steam and Lutris games without replacing their clients.",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "runtime/0.1.0/GameShelf.qml"
+  }
+}
