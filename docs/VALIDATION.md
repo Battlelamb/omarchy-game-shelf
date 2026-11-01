@@ -1,4 +1,10 @@
-# Validation: local 0.1.0 candidate
+# Validation
+
+Latest deployment record: [LIVE-QUALIFICATION.md](LIVE-QUALIFICATION.md).
+
+## Historical pre-deployment checkpoint
+
+The following offline record predates live authorization; its not-installed/not-run statements describe that earlier checkpoint.
 
 Not installed, enabled, tagged or published. No window was opened on the live desktop.
 

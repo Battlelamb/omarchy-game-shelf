@@ -2,7 +2,7 @@
 
 Browse locally installed Steam and Lutris games without replacing their clients.
 
-**Locally tested candidate. Not installed or published. Real-desktop/GPU qualification is pending.**
+**Local deployment candidate; not publicly released.** Workstation live-test scope and remaining limits are recorded in [docs/LIVE-QUALIFICATION.md](docs/LIVE-QUALIFICATION.md).
 
 ## Use after deliberate installation
 
@@ -13,7 +13,7 @@ omarchy plugin add /srv/projects/omarchy-game-shelf --enable
 omarchy-shell shell toggle leviathan.game-shelf '{}'
 ```
 
-These are future install/use commands, not commands run during this task. The plugin is not enabled automatically by building it. No shortcut is created.
+These are deliberate local install/use commands. The recorded workstation installation used the reviewed local commits; no public repository or release is implied. The plugin is not enabled automatically by building it. No shortcut is created.
 
 Type to search; arrows select; Enter or the primary button explicitly acts. Clicking a card selects it only. Refresh rereads the catalogue; Escape/outside dismiss. Where advertised, Restore follows the owned receipt even when the search has no matching row. Restore/Keep effect are shown only when the backend advertises them. Actions use fresh backend membership, not arbitrary row commands. Backend details and limitations: [BACKEND.md](BACKEND.md).
 
