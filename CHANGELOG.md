@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — unpublished candidate
+
+- Fix compact selected-detail clipping with bounded content-derived height; retain long-text scrolling.
+- Advance independent runtime URLs from 0.2.0 to 0.2.1 without backend/controller/bounded-process changes.
+- Fresh private native font-metric RED/GREEN; exact-tree review, previews, sealing and live upgrade are separate gates.
+
 ## 0.2.0 — unpublished candidate
 
 - Native UI polish: stronger hierarchy/selection, clearer previews/actions and compact preset presentation.

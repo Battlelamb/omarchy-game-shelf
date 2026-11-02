@@ -107,9 +107,13 @@ test('Compact presets reserve space for three choices without dropping selected 
     assert.match(hint, /visible: !card.compact/);
 });
 
-test('Preview sizing cannot feed back into its own layout and compact metadata fits two lines', () => {
+test('Preview sizing avoids feedback and compact detail grows with readable content within a cap', () => {
     assert.doesNotMatch(source, /Layout.maximumHeight: parent.height/);
     const compact = source.slice(source.indexOf('objectName: "lego-compact-detail"'));
-    assert.match(compact, /Layout.preferredHeight: Style.space\(40\)/);
+    const expression = compact.match(/Layout.preferredHeight: ([^\n]+)/)[1];
+    for (const [implicitHeight, expected] of [[32, 32], [43, 43], [160, 64]]) {
+        assert.equal(vm.runInNewContext(expression, {Style: {space: x => x}, compactLabels: {implicitHeight}}), expected);
+    }
+    assert.doesNotMatch(expression, /parent\.height/);
     assert.match(source, /anchors.verticalCenter: root.presetMode \? parent.verticalCenter : undefined/);
 });

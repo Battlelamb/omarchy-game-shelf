@@ -289,7 +289,7 @@ Item {
                     objectName: "lego-compact-detail"
                     visible: card.compact && root.selectedRow !== null
                     Layout.fillWidth: true
-                    Layout.preferredHeight: Style.space(40)
+                    Layout.preferredHeight: Math.min(Style.space(64), compactLabels.implicitHeight)
                     clip: true
                     contentHeight: compactLabels.implicitHeight
                     boundsBehavior: Flickable.StopAtBounds

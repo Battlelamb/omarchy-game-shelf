@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 r=Path(__file__).resolve().parents[1]
 m=json.loads((r/'manifest.json').read_text())
-assert m['schemaVersion']==1 and m['version']=='0.2.0','Stale release version'
+assert m['schemaVersion']==1 and m['version']=='0.2.1','Stale release version'
 assert m['id'].startswith('leviathan.') and m['kinds']==['overlay']
 assert m.get('keepLoaded') is True,'Keep helper ownership across native host hide/unload'
 runtime=Path('runtime')/m['version'];entry=Path(m['entryPoints']['overlay'])

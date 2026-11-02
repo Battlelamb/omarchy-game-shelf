@@ -1,4 +1,14 @@
-# Game Shelf: v0.2.0 validation
+# Game Shelf: v0.2.1 candidate validation
+
+## Current v0.2.1 compact selected-detail fix
+
+The compact detail viewport follows its content height up to a bounded 64px token instead of fixing it at 40px. Long metadata still scrolls; backend/controller/bounded-process bytes are unchanged. All runtime URLs advance to v0.2.1 to avoid reusing the already-loaded v0.2.0 component URL.
+
+Fresh private native Qt regression reproduced the old clipping with representative JetBrains Mono 14px body / 13px small typography: 43px of title/body/padding did not fit in 40px. The corrected template passed title plus one complete body line, three preset choices, action/footer containment and real long-text scrolling checks at 680×520 and 640×480 cards, also at a 640×480 output. Default typography was checked separately. This is fixture-backed software-rendered native geometry/pixel evidence, not a new live desktop/backend action qualification or certification of every font/scale. With production preset descriptions and status text, all three tiles fit at 680×520; smaller layouts can require native list scrolling. Each choice was reached and fully shown using native keyboard input at 640×480 cards and outputs; simultaneous visibility of all three full tiles is not claimed there.
+
+Scoped exact-tree independent review and refreshed illustrative preview checks passed. Sealing, source-export verification and live v0.2.1 integration are recorded separately. The earlier suite totals below are historical v0.2.0 evidence, not fresh v0.2.1 suite claims.
+
+## Historical v0.2.0 qualification
 
 Release gate: **passed for the scoped offline candidate**. Live v0.2.0 integration, hosted CI and publication are separate gates.
 
@@ -15,3 +25,7 @@ No raw desktop captures, private window titles, raw clipboard content, provider 
 The exact nine-tool candidate passed 315 Node tests, 333 backend tests and 207 native subprocess checks across its packages; the separate native wide/compact UI suite passed 590 checks, and the actual-backend/private-UI bridge passed 62 cases. Same-process old/new/rollback loading passed 93 assertions across nine sequences (27 component loads). These suite counts overlap in exercised behavior and are not a single performance or security score. Runtime hashes bind the checks to the candidate; later documentation/preview corrections do not acquire retroactive GUI coverage.
 
 The exporter and component workflow passed scoped independent review. Each source archive must still be checked against its committed file inventory, modes and bytes, including its actual archived full licence, before delivery. Hosted component CI has not run; see [CI.md](CI.md) for its deliberately narrower scope. Public previews are native Qt captures with clearly labelled illustrative catalogues, not live provider/action evidence; see [PREVIEW.md](PREVIEW.md).
+
+## Fresh v0.2.1 receipts
+
+Nine sanctioned offline package suites passed 315 Node, 333 backend and 207 native-process checks. The targeted compact-detail native regression passed 504 checks; the separate real-preset keyboard run passed 504. The actual-backend/private-handler bridge passed 62 cases; same-private-process 0.2.0 → 0.2.1 → 0.2.0 loading passed 93 assertions. These separate suites overlap in behavior. Native pixel checks restored the previously clipped body line without changing its visible prefix. All 27 backend/controller/process blobs remain byte-identical. Refreshed illustrative previews passed 90 native checks and exact decoded-pixel/source matching. Hosted CI remains unrun.

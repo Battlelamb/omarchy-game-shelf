@@ -1,5 +1,9 @@
 # Local integration coverage
 
+Current v0.2.1: targeted private native compact-detail font/geometry/scrolling checks passed. Live upgrade and final exact-tree qualification remain pending; no new live Apply action is claimed.
+
+## Historical v0.2.0 summary
+
 This public-safe summary supersedes the earlier workstation-specific record; its original evidence remains private and is not bundled.
 
 Offline UI qualification and scoped independent reviews: **passed**. Live v0.2.0 upgrade: **pending**.
