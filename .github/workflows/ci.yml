@@ -1,0 +1,30 @@
+name: Component checks
+"on":
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TMPDIR: ${{ runner.temp }}
+      PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Package identity and Python syntax
+        run: |
+          python3 scripts/check-package.py
+          python3 -m compileall -q runtime scripts tests
+      - name: Controller and UI source contracts
+        run: node --test tests/controller.test.cjs tests/ui.test.cjs tests/ui-polish.test.cjs tests/preferences-ui.test.cjs
+      - name: Standalone storage and required-file regressions
+        run: |
+          shared_home=$(mktemp -d "${TMPDIR}/plugin-source-ci.XXXXXX")
+          trap 'rm -rf -- "$shared_home"' EXIT
+          env -i HOME="$shared_home" XDG_CONFIG_HOME="$shared_home/.config" PATH="$PATH" TMPDIR="$TMPDIR" PYTHONDONTWRITEBYTECODE=1 python3 tests/test_shared_preferences.py
+          env -i HOME="$shared_home" PATH="$PATH" TMPDIR="$TMPDIR" PYTHONDONTWRITEBYTECODE=1 python3 tests/shared-packaging.py

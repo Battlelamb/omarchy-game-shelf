@@ -1,0 +1,7 @@
+# Release gates
+
+1. Require the exact candidate's package/offline backend/controller/native tests, native wide/compact geometry and pixels, upgrade/rollback proof, connected read-only independent review and committed tested-blob equivalence. Keep failed evidence private and immutable.
+2. Keep the full license and pinned donor/dataset notices. No copyrighted wallpaper/game artwork, private desktop captures, credentials or raw local process/provider logs in exports. Previews are optional, not invented product evidence.
+3. Build a deterministic current-commit source tarball with SHA256SUMS; verify unpacked files, native manifest validation and independence from all other Lego plugins. No source history or ignored evidence is bundled.
+4. Owner approval is required for the concrete public repository, initial source publication, tag/release and marketplace submission. Publish a reviewed **clean current-source export**, not private local development history. Until approved, proposed URLs and checklist items stay unconfirmed.
+5. After publication, verify exact remote commit, CI, tag target, release assets/bytes and deployed marketplace commit before claiming success. Hosted CI and marketplace approval are not implied by local checks. Never retarget a published tag. Runtime releases advance their versioned path; retain rollback and do not restart the lock-hosting shell to mask stale QML.
