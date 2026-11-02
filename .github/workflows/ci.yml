@@ -9,20 +9,26 @@ jobs:
   components:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      TMPDIR: ${{ runner.temp }}
-      PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Package identity and Python syntax
+        env:
+          TMPDIR: ${{ runner.temp }}
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
         run: |
           python3 scripts/check-package.py
           python3 -m compileall -q runtime scripts tests
       - name: Controller and UI source contracts
+        env:
+          TMPDIR: ${{ runner.temp }}
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
         run: node --test tests/controller.test.cjs tests/ui.test.cjs tests/ui-polish.test.cjs tests/preferences-ui.test.cjs
       - name: Standalone storage and required-file regressions
+        env:
+          TMPDIR: ${{ runner.temp }}
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
         run: |
           shared_home=$(mktemp -d "${TMPDIR}/plugin-source-ci.XXXXXX")
           trap 'rm -rf -- "$shared_home"' EXIT
