@@ -1,47 +1,17 @@
-# Validation
+# Game Shelf: v0.2.0 validation
 
-Latest deployment record: [LIVE-QUALIFICATION.md](LIVE-QUALIFICATION.md).
+Release gate: **passed for the scoped offline candidate**. Live v0.2.0 integration, hosted CI and publication are separate gates.
 
-## Historical pre-deployment checkpoint
+The release preserves backend, controller and bounded-process semantics while moving the installed entry point to a new versioned URL. Its own offline Node/Python/native tests, package validation and the all-nine native wide/compact/actual-backend bridge gates must pass on the exact candidate before sealing. Counts and source hashes come from fresh parsed receipts, not an estimate.
 
-The following offline record predates live authorization; its not-installed/not-run statements describe that earlier checkpoint.
+Historical v0.1.0 integration covered native UI/catalogues plus actual clipboard Copy, Steam menu startup, calculator launch, theme/wallpaper Apply/Restore, palette export/quarantine Restore, runtime motion/layout Restore and timed GPU shader recovery. Those are **historical checks**, not retroactive v0.2.0 GUI coverage. Shader empty-state and native wallpaper hardlink bookkeeping fixes are retained with their regression tests.
 
-Not installed, enabled, tagged or published. No window was opened on the live desktop.
+Not a full security audit. Every app/game, long soak, fractional scaling/RTL/IME/full accessibility, screen-lock races, all outputs, upgrades under active external actions, physical power loss and hosted CI remain unqualified unless separately recorded. Other profile retints/remote theme propagation were excluded from prior theme tests. The earlier whole-shell resource gate remains **failed**; this UI revision makes no speedup/FPS/steady-state resource claim.
 
-## Executed on this package
+No raw desktop captures, private window titles, raw clipboard content, provider logs, process traces or credentials belong in public release assets. Private bench captures stay outside the public source export. Optional public preview assets are withheld unless rights and content are checked.
 
-`env -u PYTHONPATH PATH=/usr/bin bash test.sh`: no-network bubblewrap, fake HOME, cleared environment, private PID/mount namespaces, no live runtime sockets, production providers masked.
+## Recorded v0.2.0 offline coverage
 
-| Gate | Result |
-|---|---:|
-| Controller/actual-handler/receipt/runner checks | 27 passed |
-| Python backend tests | 21 passed |
-| Installed Qt/Quickshell subprocess cases | 23 passed |
-| `omarchy plugin validate .` | exit 0 |
-| Package identity/versioned runtime/licence/test files | passed |
+The exact nine-tool candidate passed 315 Node tests, 333 backend tests and 207 native subprocess checks across its packages; the separate native wide/compact UI suite passed 590 checks, and the actual-backend/private-UI bridge passed 62 cases. Same-process old/new/rollback loading passed 93 assertions across nine sequences (27 component loads). These suite counts overlap in exercised behavior and are not a single performance or security score. Runtime hashes bind the checks to the candidate; later documentation/preview corrections do not acquire retroactive GUI coverage.
 
-The all-nine final rerun reconciles **243 Node + 310 backend + 207 native subprocess = 760 checks**, no skipped/cancelled tests. Those are aggregate counts, not this package's counts. Native helper cases cover byte bounds, Unicode, failures, stubborn-descendant deadlines, owner destruction, cancellation drain, stale callback exclusion and fresh PID receipts. The deliberately missing executable emits its exact expected FailedToStart warning; this is not a warning-free whole-shell claim. The runner pins `/usr/bin/node` and rejects missing full-suite prerequisites; backend-only checks remain available without Node.
-
-## Private native UI and connected backend coverage
-
-All nine real native QML components were separately instantiated under private headless labwc with the installed shell kit. Unicode/model bindings and same-instance retention under the installed host Loader formula pass. No live Wayland/Hyprland sockets were exposed.
-
-A fresh private software-rendered wide/compact UI rerun passes **420/420 checks across all nine** (210 per layout), including contained grid/preview geometry, plain-text labels, filters, controls and fixture-backed action responses. The wide-grid collapse was first reproduced and fixed test-first. These are real native UI surfaces with **synthetic backends and fake compositor metadata**, not live providers, manual keyboard/pointer qualification, real Hyprland or GPU validation.
-
-A separate **62/62-check Node VM actual-QML-handler-to-production-backend-CLI bridge** verifies literal `restore:last` dispatch for six restore-capable backends, receipt ownership and success-only Palette hints without reloading rows/query or decoding again. It uses actual backend code but fake providers; it is **not native GUI coverage**. The 420 and 62 counts are separate aggregate suites, not additional per-package counts.
-
-## Fixes, review and evidence
-
-Preserved RED/GREEN and original-backend/mutation controls cover Unicode, early-stop search, receipt-bound Restore, hidden previews, capability hints, current-wallpaper source races, exclusive Palette publication/previous ownership, interrupted Motion/Workspace/Shader compensation and watchdog handoff, and ambient Node-shim rejection. Unrelated disappeared candidates stay skippable; unknown/unadmitted current wallpaper paths remain non-restorable without broadening trusted roots. Success-only capability hints guarantee the existing rows remain usable; failures cannot grant actions.
-
-Final robustness correction re-review: **passed**, with no remaining security concerns or logic errors in the scoped independent reviews. Earlier connected reviews and approved layout/runner deltas are historical evidence; they do not retroactively cover later code. Read-only final snapshots, exact tested hashes, named logs, negative controls and the sealed local commit are recorded in ignored `release-output/improvements-verification.json`; earlier receipts remain untouched.
-
-Operation-count controls show zero artwork reads during app/game launch-membership checks, no hidden compact preview source, and search stopping at 256 matches. Runtime-only helper cleanup removes unused work without installing a shared daemon. Timing/CPU/RSS samples are **diagnostic only**, with no speedup, FPS or steady-state memory claim. The earlier whole-shell resource gate remains failed (Tailscale/nvidia-smi pollers); this scoped plugin pass neither fixes nor supersedes it.
-
-## Environment and remaining limits
-
-Observed tools: Omarchy 4.5.0rc2-1, Hyprland 0.56.2, Quickshell 0.3.2, Python 3.14.8, Node 26.13.0. Motion/workspace/shader adapters are intentionally pinned to supported Hyprland Lua 0.56.2. Real Lua parsing and fake compositor state are not real compositor/GPU execution.
-
-Not exercised: live install/enable, live providers or IPC, actual clipboard/application/game ownership, real theme/wallpaper effects, shader pixels, live screen-lock races, native RTL/fractional scale/multi-output layout, IME, complete accessibility, FPS/resource soak, upgrades, hosted CI or marketplace publication. Storage/IPC failure, true divergent external edits or killing an independent watchdog can prevent recovery. Cancellation cannot undo an already accepted external action or own deliberately escaped groups. See BACKEND.md for exact limits, including retained Palette quarantine files. No full-security-audit or certification claim.
-
-The recorded config hashes, theme/background link and compositor/shell PIDs remain unchanged. None of the nine is installed or published. Existing Native Overview is outside this local implementation scope and was not modified.
+The exporter and component workflow passed scoped independent review. Each source archive must still be checked against its committed file inventory, modes and bytes, including its actual archived full licence, before delivery. Hosted component CI has not run; see [CI.md](CI.md) for its deliberately narrower scope. Public previews are native Qt captures with clearly labelled illustrative catalogues, not live provider/action evidence; see [PREVIEW.md](PREVIEW.md).

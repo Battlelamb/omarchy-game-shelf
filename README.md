@@ -1,43 +1,56 @@
 # Game Shelf
 
-Browse locally installed Steam and Lutris games without replacing their clients.
+![Actual native UI with an illustrative catalogue; no live actions shown](preview.png)
 
-**Local deployment candidate; not publicly released.** Workstation live-test scope and remaining limits are recorded in [docs/LIVE-QUALIFICATION.md](docs/LIVE-QUALIFICATION.md).
+Browse bounded local Steam/Lutris entries and explicitly launch a selection. This does not replace either client. Steam support tools can appear; accepting a launch is not a gameplay/startup guarantee.
 
-## Use after deliberate installation
+**Small independent Omarchy Quattro plugin.** No other Lego plugin is required. Native theme colors, keyboard-first selection, bounded local catalogues and explicit actions; no new service or mandatory hotkey.
 
-Requires the Omarchy Quattro shell, its installed Quickshell/Qt APIs, system Python 3 and the backend tools documented in [BACKEND.md](BACKEND.md). This is not a standalone shell. No other Lego plugin is required.
+## Install and open
 
-```bash
-omarchy plugin add /srv/projects/omarchy-game-shelf --enable
-omarchy-shell shell toggle leviathan.game-shelf '{}'
+Unpublished v0.2.0 candidate. The repository below is a **proposed publication target**, not a claim that it exists. After publication:
+
+```sh
+omarchy plugin add https://github.com/Battlelamb/omarchy-game-shelf --enable
+omarchy-shell shell summon leviathan.game-shelf
 ```
 
-These are deliberate local install/use commands. The recorded workstation installation used the reviewed local commits; no public repository or release is implied. The plugin is not enabled automatically by building it. No shortcut is created.
+Before publication, install from a reviewed **Git checkout** with `omarchy plugin add "$PWD" --enable`. The release tarball is a current-commit source export, not an automatic installer. Never extract over an existing installation.
 
-Type to search; arrows select; Enter or the primary button explicitly acts. Clicking a card selects it only. Refresh rereads the catalogue; Escape/outside dismiss. Where advertised, Restore follows the owned receipt even when the search has no matching row. Restore/Keep effect are shown only when the backend advertises them. Actions use fresh backend membership, not arbitrary row commands. Backend details and limitations: [BACKEND.md](BACKEND.md).
+Type to search; arrows select; Enter invokes the named primary action. A tile click only selects. Escape/outside dismisses. Refresh rereads. Restore follows its owned receipt even when search has no results. Restore/Keep appear only when advertised by the backend. Dismissing cannot undo work already accepted by external applications/providers.
 
-The interface uses native shell colours, reduced-motion behavior, plain-text labels, translated strings (English fallback), virtualized bounded result grids and local image previews. Full IME/accessibility/theme/multi-output qualification remains unverified until recorded.
+### Optional Super+Space entry
 
-## Verify without opening windows
+Back up `~/.config/omarchy/extensions/omarchy-menu.jsonc`, then **merge this entry without replacing existing entries**. No dedicated shortcut is needed:
 
-```bash
+```json
+{
+  "trigger.game-shelf": {"label": "Game Shelf", "action": "omarchy-shell shell summon leviathan.game-shelf"}
+}
+```
+
+It appears under **Trigger** in the existing Omarchy menu. Static entries should be removed when their plugin is uninstalled.
+
+## Requirements and safety
+
+Requires the Omarchy Quattro shell, its native `qs.Ui`/`qs.Commons`, compatible Quickshell/Qt, system Python3 and the tools listed in [BACKEND.md](BACKEND.md). Legacy shell releases are not claimed compatible. Runtime code runs **unsandboxed** inside the existing shell. Native providers/hooks can have their documented normal side effects; no blanket rollback or security-audit claim.
+
+The UI uses native theme tokens, plain-text untrusted labels, English fallback translations and virtualization. Closed overlays stop catalogue/lock polling. Retained native component ownership and independent effect recovery keep their documented limits. No bundled wallpapers, game art, fonts, cloud endpoints or shared runtime framework.
+
+## Verify and remove
+
+```sh
+export TMPDIR="${TMPDIR:-$HOME/.cache/omarchy-plugin-tests}"
+mkdir -p -m 700 "$TMPDIR"
 env -u PYTHONPATH PATH=/usr/bin bash test.sh
-```
-
-The runner uses no-network bubblewrap with fake HOME and a cleared environment; Node controller/source-handler checks and Python backend tests use fixtures. Shimmed external-tool tests establish adapter behavior, not real GPU/game/theme success. No `test.sh` command opens an overlay or uses the real clipboard. The runner pins system `/usr/bin/node` rather than ambient tool-manager shims. Backend-only checks remain available without Node. Private native wide/compact UI, actual backend/UI bridge coverage and exact limits are recorded in [docs/VALIDATION.md](docs/VALIDATION.md).
-
-## Safety
-
-Runs unsandboxed inside the user's existing shell when deliberately installed. Clipboard/app/theme/compositor actions are explicit; inspect their scope in BACKEND.md. No new system packages, login/boot/driver changes, automatic keybinding edits or external services are supplied. The native component stays loaded while enabled to retain in-flight cleanup ownership, but closed overlays do not run their catalogue or lock polling; explicit state-changing actions have bounded ownership and rollback limitations documented by the backend. The stock launcher, emoji picker, notification/clipboard services and wallpaper engine remain independent.
-
-## Disable
-
-```bash
 omarchy-shell shell hide leviathan.game-shelf
 omarchy plugin disable leviathan.game-shelf
+# Only when removal is wanted:
+omarchy plugin remove leviathan.game-shelf
 ```
 
-Do not remove a checkout containing unsaved changes. Disabling a plugin does not magically undo a previously completed user action; use its Restore capability where supported.
+Tests run offline in a fake HOME with fixture providers; they are not proof that every external app, GPU or hook works. Use **Restore before disabling/removing an applied effect**. Do not remove a checkout with unsaved changes. Details: [validation](docs/VALIDATION.md), [backend contract](BACKEND.md), [release gates](docs/RELEASING.md).
 
-Licence: GPL-3.0-only. Exact source/dataset notices: NOTICE.md and NOTICE.backend.md.
+GPL-3.0-only. Full license and exact source/dataset rights: LICENSE, NOTICE.md, NOTICE.backend.md. Community plugin, not an official Omarchy or HyDE release.
+
+Visual hierarchy reference: [Mosaic](https://github.com/naolselemon/mosaic), inspected at `9b3f4d78611b5714f2039be48e59922c1158301a`. Design principles only; no Mosaic code, branding or assets are bundled.

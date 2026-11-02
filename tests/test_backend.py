@@ -8,7 +8,8 @@ import subprocess
 import tempfile
 import unittest
 
-BACKEND = Path(__file__).resolve().parents[1] / 'runtime/0.1.0/backend.py'
+ROOT = Path(__file__).resolve().parents[1]
+BACKEND = ROOT / Path(json.loads((ROOT / 'manifest.json').read_text())['entryPoints']['overlay']).parent / 'backend.py'
 
 class BackendTests(unittest.TestCase):
     def setUp(self):

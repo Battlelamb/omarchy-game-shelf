@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
-const file = path.join(__dirname, '../runtime/0.1.0/Controller.js');
+const file = require('./runtime-path.cjs')('Controller.js');
 const api = vm.createContext({});
 vm.runInContext(fs.existsSync(file) ? fs.readFileSync(file,'utf8').replace(/^\.pragma library\s*/, '') : '', api);
 const plain = x => JSON.parse(JSON.stringify(x));

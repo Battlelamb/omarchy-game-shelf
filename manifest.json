@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "id": "leviathan.game-shelf",
   "name": "Game Shelf",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Ömer Eren",
   "license": "GPL-3.0-only",
-  "description": "Browse locally installed Steam and Lutris games without replacing their clients.",
+  "description": "Browse bounded local Steam/Lutris entries and explicitly launch a selection. This does not replace either client. Steam support tools can appear; accepting a launch is not a gameplay/startup guarantee. Open: omarchy-shell shell summon leviathan.game-shelf. Type to search; arrows select; Enter acts; Esc closes.",
   "kinds": [
     "overlay"
   ],
   "keepLoaded": true,
   "entryPoints": {
-    "overlay": "runtime/0.1.0/GameShelf.qml"
+    "overlay": "runtime/0.2.0/GameShelf.qml"
   }
 }

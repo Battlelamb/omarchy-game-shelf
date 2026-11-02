@@ -26,6 +26,7 @@ Item {
     property string message: ""
     readonly property string backendPath: decodeURIComponent(Qt.resolvedUrl("backend.py").toString().replace(/^file:\/\//, ""))
     readonly property bool glyphMode: false
+    readonly property bool presetMode: false
     readonly property var matches: Controller.filter(root.rows, root.query)
     readonly property var selectedRow: selected >= 0 && selected < matches.length ? matches[selected] : null
     readonly property string primaryVerb: actions.filter(function(a) { return a !== "restore" && a !== "confirm"; })[0] || ""
@@ -129,8 +130,8 @@ Item {
             id: card
             objectName: "lego-card"
             anchors.centerIn: parent
-            width: Math.max(1, Math.min(Style.space(1000), panel.width - Style.space(32)))
-            height: Math.max(1, Math.min(Style.space(650), panel.height - Style.space(32)))
+            width: Math.max(1, Math.min(Style.space(root.presetMode ? 680 : 1000), panel.width - Style.space(32)))
+            height: Math.max(1, Math.min(Style.space(root.presetMode ? 520 : 650), panel.height - Style.space(32)))
             readonly property bool compact: width < Style.space(760) || height < Style.space(440)
             color: Commons.Color.menu.background
             border.color: Commons.Color.menu.border
@@ -162,25 +163,36 @@ Item {
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: card.compact ? Style.space(12) : Style.space(20)
-                spacing: Style.space(12)
+                spacing: card.compact ? Style.space(8) : Style.space(12)
                 RowLayout {
+                    objectName: "lego-toolbar"
                     Layout.fillWidth: true
+                    spacing: Style.space(12)
+                    Rectangle {
+                        Layout.preferredWidth: Style.space(32)
+                        Layout.preferredHeight: Style.space(32)
+                        radius: Style.cornerRadius
+                        color: Commons.Color.menu.selectedBackground
+                        Label { anchors.centerIn: parent; text: "♟"; font.pixelSize: Style.space(22); color: Commons.Color.accent }
+                    }
                     Label { text: strings.t("title"); font.pixelSize: Style.font.heading; font.bold: true; Layout.fillWidth: true }
                     Label { text: strings.tn("results", root.matches.length).arg(Commons.I18n.formatNumber(root.matches.length)); opacity: 0.65; font.pixelSize: Style.font.bodySmall }
                 }
                 Rectangle {
+                    objectName: "lego-search"
                     Layout.fillWidth: true
-                    implicitHeight: Style.space(44)
+                    implicitHeight: Style.space(36)
                     radius: Style.cornerRadius
-                    color: Commons.Color.menu.background
-                    border.color: Commons.Color.menu.border
-                    border.width: 1
+                    color: Commons.Color.menu.selectedBackground
+                    border.color: keyboard.activeFocus ? Commons.Color.accent : Commons.Color.menu.border
+                    border.width: keyboard.activeFocus ? 2 : 1
                     Accessible.role: Accessible.EditableText
                     Accessible.name: strings.t("search")
                     Accessible.description: root.query
                     MouseArea { anchors.fill: parent; onClicked: keyboard.forceActiveFocus() }
-                    Label { anchors.left: parent.left; anchors.right: clear.left; anchors.margins: Style.space(12); anchors.verticalCenter: parent.verticalCenter; text: root.query || strings.t("search"); opacity: root.query ? 1 : 0.55 }
-                    Button { id: clear; anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter; text: "×"; visible: root.query.length > 0; onClicked: { root.query = ""; root.selected = 0; keyboard.forceActiveFocus(); } }
+                    Label { id: searchIcon; anchors.left: parent.left; anchors.leftMargin: Style.space(14); anchors.verticalCenter: parent.verticalCenter; text: "⌕"; font.pixelSize: Style.space(22); opacity: 0.7 }
+                    Label { anchors.left: searchIcon.right; anchors.right: clear.left; anchors.margins: Style.space(12); anchors.verticalCenter: parent.verticalCenter; text: root.query || strings.t("search"); opacity: root.query ? 1 : 0.65 }
+                    Button { id: clear; anchors.right: parent.right; anchors.rightMargin: Style.space(4); anchors.verticalCenter: parent.verticalCenter; text: "×"; Accessible.name: strings.t("clearSearch"); visible: root.query.length > 0; onClicked: { root.query = ""; root.selected = 0; keyboard.forceActiveFocus(); } }
                 }
                 RowLayout {
                     Layout.fillWidth: true
@@ -192,43 +204,49 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         clip: true
-                        readonly property int columns: Math.max(1, Math.floor(width / Style.space(root.glyphMode ? 104 : 176)))
+                        readonly property int columns: root.presetMode ? 1 : Math.max(1, Math.floor(width / Style.space(root.glyphMode ? 104 : 176)))
                         cellWidth: width / columns
-                        cellHeight: Style.space(root.glyphMode ? 104 : 156)
+                        cellHeight: Style.space(root.presetMode ? (card.compact ? 76 : 88) : root.glyphMode ? 104 : 156)
                         cacheBuffer: 0
                         model: root.matches
                         delegate: Rectangle {
+                            objectName: "lego-result"
                             required property var modelData
                             required property int index
                             width: grid.cellWidth - Style.space(8)
                             height: grid.cellHeight - Style.space(8)
                             radius: Style.cornerRadius
-                            color: index === root.selected ? Commons.Color.menu.selectedBackground : Commons.Color.menu.background
-                            border.width: 1
-                            border.color: index === root.selected ? Commons.Color.menu.text : Commons.Color.menu.border
+                            color: index === root.selected ? Commons.Color.menu.selectedBackground : tileMouse.containsMouse ? Style.hoverFillFor(Commons.Color.menu.text, Commons.Color.accent) : "transparent"
+                            border.width: index === root.selected ? 2 : 1
+                            border.color: index === root.selected ? Commons.Color.accent : "transparent"
                             Accessible.role: Accessible.ListItem
                             Accessible.name: modelData.label
                             Accessible.selected: index === root.selected
                             Column {
-                                anchors.fill: parent
-                                anchors.margins: Style.space(8)
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.top: root.presetMode ? undefined : parent.top
+                                anchors.bottom: root.presetMode ? undefined : parent.bottom
+                                anchors.verticalCenter: root.presetMode ? parent.verticalCenter : undefined
+                                anchors.margins: root.presetMode ? Style.space(14) : Style.space(8)
                                 spacing: Style.space(4)
                                 Rectangle {
+                                    visible: !root.presetMode
                                     width: parent.width
                                     height: Math.max(Style.space(34), parent.height - labels.implicitHeight - Style.space(8))
-                                    color: modelData.color || "transparent"
+                                    color: modelData.color || Commons.Color.menu.selectedBackground
                                     radius: Style.cornerRadius
-                                    Image { anchors.fill: parent; source: Controller.imageUrl(modelData.preview); fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize.width: 320; sourceSize.height: 180 }
-                                    Label { anchors.centerIn: parent; visible: !modelData.preview && !modelData.color; text: modelData.glyph || modelData.label.charAt(0); font.pixelSize: Style.space(root.glyphMode ? 32 : 36) }
+                                    Image { id: thumbImage; anchors.fill: parent; source: root.presetMode ? "" : Controller.imageUrl(modelData.preview); fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize.width: 320; sourceSize.height: 180 }
+                                    Label { anchors.centerIn: parent; visible: !modelData.color && thumbImage.status !== Image.Ready; text: modelData.glyph || "♟"; font.pixelSize: Style.space(root.glyphMode ? 32 : 28); opacity: modelData.glyph ? 1 : 0.55 }
                                 }
                                 Column {
                                     id: labels
                                     width: parent.width
-                                    Label { width: parent.width; text: modelData.label; font.pixelSize: Style.font.bodySmall }
+                                    Label { width: parent.width; text: modelData.label; font.pixelSize: root.presetMode ? Style.font.body : Style.font.bodySmall; font.bold: root.presetMode }
                                     Label { width: parent.width; visible: !root.glyphMode; text: modelData.detail; font.pixelSize: Style.font.bodySmall; opacity: 0.6 }
                                 }
                             }
-                            MouseArea { anchors.fill: parent; onClicked: { root.selected = index; keyboard.forceActiveFocus(); } }
+                            MouseArea { id: tileMouse; anchors.fill: parent; hoverEnabled: true; onClicked: { root.selected = index; keyboard.forceActiveFocus(); } }
                         }
                         Label { anchors.centerIn: parent; visible: root.matches.length === 0; width: parent.width; text: catalogue.running ? strings.t("loading") : strings.t("empty"); horizontalAlignment: Text.AlignHCenter }
                     }
@@ -240,29 +258,62 @@ Item {
                         Layout.fillWidth: false
                         Layout.fillHeight: true
                         Rectangle {
+                            visible: !root.presetMode
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: Style.space(root.glyphMode ? 170 : 210)
+                            Layout.maximumHeight: Style.space(210)
+                            radius: Style.cornerRadius
+                            color: root.selectedRow && root.selectedRow.color ? root.selectedRow.color : Commons.Color.menu.selectedBackground
+                            Image { id: detailImage; anchors.fill: parent; anchors.margins: Style.space(12); source: !card.compact && root.selectedRow ? Controller.imageUrl(root.selectedRow.preview) : ""; fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize.width: 640; sourceSize.height: 640 }
+                            Label { anchors.centerIn: parent; text: root.selectedRow ? root.selectedRow.glyph || "♟" : ""; visible: root.selectedRow && !root.selectedRow.color && detailImage.status !== Image.Ready; font.pixelSize: Style.space(root.glyphMode ? 72 : 40); opacity: root.glyphMode ? 1 : 0.55 }
+                        }
+                        Label { Layout.fillWidth: true; text: strings.t("details"); font.pixelSize: Style.font.bodySmall; color: Commons.Color.accent }
+                        Flickable {
+                            objectName: "lego-detail"
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            radius: Style.cornerRadius
-                            color: root.selectedRow && root.selectedRow.color ? root.selectedRow.color : Commons.Color.menu.background
-                            border.color: Commons.Color.menu.border
-                            border.width: 1
-                            Image { anchors.fill: parent; anchors.margins: Style.space(8); source: !card.compact && root.selectedRow ? Controller.imageUrl(root.selectedRow.preview) : ""; fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize.width: 640; sourceSize.height: 640 }
-                            Label { anchors.centerIn: parent; text: root.selectedRow ? root.selectedRow.glyph || root.selectedRow.label.charAt(0) : ""; visible: root.selectedRow && !root.selectedRow.preview && !root.selectedRow.color; font.pixelSize: Style.space(72) }
+                            clip: true
+                            contentHeight: detailLabels.implicitHeight
+                            boundsBehavior: Flickable.StopAtBounds
+                            Column {
+                                id: detailLabels
+                                width: parent.width
+                                spacing: Style.space(8)
+                                Label { width: parent.width; text: root.selectedRow ? root.selectedRow.label : ""; font.pixelSize: Style.font.title; font.bold: true; wrapMode: Text.Wrap; elide: Text.ElideNone }
+                                Label { width: parent.width; text: root.selectedRow ? root.selectedRow.detail : ""; wrapMode: Text.Wrap; elide: Text.ElideNone; opacity: 0.75 }
+                            }
                         }
-                        Label { Layout.fillWidth: true; text: root.selectedRow ? root.selectedRow.label : ""; font.bold: true }
-                        Label { Layout.fillWidth: true; text: root.selectedRow ? root.selectedRow.detail : ""; wrapMode: Text.Wrap; elide: Text.ElideNone; opacity: 0.7 }
                     }
+                }
+                Flickable {
+                    objectName: "lego-compact-detail"
+                    visible: card.compact && root.selectedRow !== null
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Style.space(40)
+                    clip: true
+                    contentHeight: compactLabels.implicitHeight
+                    boundsBehavior: Flickable.StopAtBounds
+                    Column {
+                        id: compactLabels
+                        width: parent.width
+                        topPadding: Style.space(4)
+                        spacing: Style.space(2)
+                        Label { width: parent.width; text: root.selectedRow ? root.selectedRow.label : ""; font.bold: true; wrapMode: Text.Wrap; elide: Text.ElideNone }
+                        Label { width: parent.width; text: root.selectedRow ? root.selectedRow.detail : ""; font.pixelSize: Style.font.bodySmall; wrapMode: Text.Wrap; elide: Text.ElideNone; opacity: 0.75 }
+                    }
+                    Rectangle { anchors.top: parent.top; width: parent.width; height: 1; color: Commons.Color.menu.border; opacity: 0.25 }
                 }
                 Label { Layout.fillWidth: true; text: root.message; visible: text.length > 0; wrapMode: Text.Wrap; elide: Text.ElideNone; font.pixelSize: Style.font.bodySmall }
                 Flow {
                     Layout.fillWidth: true
                     spacing: Style.space(8)
-                    Button { text: strings.t(root.primaryVerb || "select"); enabled: root.selectedRow !== null && !!root.primaryVerb && !root.actionBusy && !catalogue.running; bordered: true; onClicked: root.activate(root.primaryVerb) }
+                    Button { objectName: "lego-primary"; text: strings.t(root.primaryVerb || "select"); enabled: root.selectedRow !== null && !!root.primaryVerb && !root.actionBusy && !catalogue.running; active: true; foreground: Commons.Color.accent; bordered: true; onClicked: root.activate(root.primaryVerb) }
                     Button { text: strings.t("restore"); visible: root.actions.indexOf("restore") >= 0; enabled: !root.actionBusy && !catalogue.running && !action.running && !lockProbe.running; bordered: true; onClicked: root.activate("restore") }
                     Button { text: strings.t("confirm"); visible: root.actions.indexOf("confirm") >= 0; enabled: !root.actionBusy && root.selectedRow !== null; bordered: true; onClicked: root.activate("confirm") }
                     Button { text: strings.t("refresh"); enabled: !root.actionBusy && !catalogue.running; onClicked: root.loadCatalogue() }
-                    Label { text: root.actionBusy ? strings.t("working") : strings.t("keys"); font.pixelSize: Style.font.bodySmall; opacity: 0.6; height: Style.space(32); verticalAlignment: Text.AlignVCenter }
+                    Label { visible: !card.compact; text: root.actionBusy ? strings.t("working") : strings.t("keys"); font.pixelSize: Style.font.bodySmall; opacity: 0.6; height: Style.space(32); verticalAlignment: Text.AlignVCenter }
                 }
+                Label { objectName: "lego-safety"; Layout.fillWidth: true; text: strings.t("safety"); wrapMode: Text.Wrap; elide: Text.ElideNone; font.pixelSize: Style.font.bodySmall; opacity: 0.7 }
             }
         }
     }

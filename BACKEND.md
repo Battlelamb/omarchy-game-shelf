@@ -22,7 +22,7 @@ Lutris immutable reads deliberately ignore an uncheckpointed WAL: close/checkpoi
 
 ## CLI and safety contract
 
-Run with `/usr/bin/python3 runtime/0.1.0/backend.py catalog`, or `action --id <exact-known-id> --verb <primary-verb> --apply`. The catalogue is read-only. Runtime/data paths derive from `__file__`, never cwd. One bounded JSON object is emitted; errors are JSON with nonzero exit and no traceback/provider output. Unknown IDs/verbs, missing `--apply`, unavailable providers, nonzero helper exits and deadlines fail closed. Selection is checked against fresh full bounded membership, not the displayed list. **No restore operation is supported or advertised**: copying and launching do not have a meaningful reversible restore.
+Run with `/usr/bin/python3 runtime/0.2.0/backend.py catalog`, or `action --id <exact-known-id> --verb <primary-verb> --apply`. The catalogue is read-only. Runtime/data paths derive from `__file__`, never cwd. One bounded JSON object is emitted; errors are JSON with nonzero exit and no traceback/provider output. Unknown IDs/verbs, missing `--apply`, unavailable providers, nonzero helper exits and deadlines fail closed. Selection is checked against fresh full bounded membership, not the displayed list. **No restore operation is supported or advertised**: copying and launching do not have a meaningful reversible restore.
 
 Actions use literal argument vectors, no shell/eval, no execution of commands from displayed metadata. Helpers are found on normal PATH (tests replace it with a private shim directory); their stdin/stdout/stderr are discarded. GNU `/usr/bin/timeout --signal=KILL 3` supplies an independent process-group deadline even if the QML-owned backend is killed; a five-second Python wait is backup. An already-successful app launch/clipboard ownership can intentionally outlive its short helper. Cancelling after dispatch cannot revoke an accepted action. A timeout does not prove that the request had no effect.
 
@@ -30,7 +30,15 @@ Success means a completed helper exited zero and accepted the request. It is **n
 
 ## Tests and receipts
 
-The private offline runner is `release-output/run-backend-tests.py`; from the host run `/usr/bin/python3 release-output/run-backend-tests.py game-shelf unique-receipt-label`. It invokes exactly `env -u PYTHONPATH /usr/bin/python3 -m unittest discover -s tests -p 'test_*.py' -v` inside bwrap, with `--unshare-all --clearenv`, read-only `/usr` and source, fake HOME, private proc/dev/tmp/run, no network, no live HOME, display, Hyprland or session bus. No package installation or GUI is involved. The isolation test verifies loopback-only networking, an unreachable external test address, absent live paths/sockets and cleared session variables.
+From this project's root, use the shipped offline runner with TMPDIR naming an existing approved private scratch directory:
+
+```sh
+TMPDIR="${TMPDIR:?Set TMPDIR to an existing private scratch directory}" env -u PYTHONPATH PATH=/usr/bin /usr/bin/python3 scripts/run-tests.py --backend-only
+```
+
+The shipped runner invokes `/usr/bin/python3 -m unittest discover -s tests -p 'test_*.py' -v` inside bwrap, with `--unshare-all --clearenv`, read-only `/usr` and source, fake HOME, private proc/dev/tmp/run, no network, no live HOME, display, Hyprland or session bus. It masks production theme/background/shell setters and streams results without creating receipts. No package installation or GUI is involved. The isolation test verifies loopback-only networking, an unreachable external test address, absent live paths/sockets and cleared session variables.
+
+The private `release-output/run-backend-tests.py` runner and ignored `release-output/` receipts below are historical development evidence, not shipped files or prerequisites for the public test command.
 
 Feature-specific RED/GREEN receipts are immutable under ignored `release-output/`; earlier failed runs are retained, not overwritten. Tests run real parsers and CLI entry points against synthetic local files/SQLite and literal executable shims. They cover selected metadata, helper acknowledgement and observable argv logs, malformed/oversized/nonregular inputs, missing clients, revalidation, unknown selections and deadline failure. The cancellation test checks an actual TERM-ignoring descendant becomes non-running after its backend is terminated. Shims establish the adapter boundary only, not genuine client integration. `release-output/backend-result.json` records counted methods, final receipt and exact source hashes. UI/package/README integration remains parent-owned.
 

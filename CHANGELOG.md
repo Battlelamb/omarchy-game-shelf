@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 — unpublished candidate
+
+- Native UI polish: stronger hierarchy/selection, clearer previews/actions and compact preset presentation.
+- Versioned runtime URL advanced for reliable in-session upgrades; no new runtime dependency or shared hub.
+- Existing backend membership, bounded process ownership, recovery and explicit-action behavior retained.
+- Super+Space menu integration documented; no mandatory per-tool shortcut.
+- Separate deterministic source-release archive, full license/notices and public-safe validation documentation.
+- Final exact-tree review, native qualification and archive verification are pending until recorded.
+
+
 ## 0.1.0 candidate (unreleased)
 
 - Initial independent Game Shelf backend and native overlay.
