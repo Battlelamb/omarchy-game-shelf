@@ -1,8 +1,8 @@
 # Local integration coverage
 
-Current v0.2.1: targeted private native compact-detail font/geometry/scrolling checks passed. Live upgrade and final exact-tree qualification remain pending; no new live Apply action is claimed.
+Current v0.2.1: scoped exact-tree review, private native compact-detail/font/scrolling checks and live UI upgrade passed. All nine installed entries were source-matched, opened and visually checked with real catalogues on an empty workspace. The selected-description clipping is corrected and Palette Studio was allowed to finish loading. Original workspace, menu/bindings/configuration, observed effects and compositor/shell processes were preserved; no shell restart. No new live Copy, launch, Apply or export action is claimed.
 
-## Historical v0.2.0 summary
+## Historical v0.2.0 summary (recorded before its live upgrade)
 
 This public-safe summary supersedes the earlier workstation-specific record; its original evidence remains private and is not bundled.
 
