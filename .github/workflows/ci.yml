@@ -24,7 +24,7 @@ jobs:
         env:
           TMPDIR: ${{ runner.temp }}
           PYTHONPYCACHEPREFIX: ${{ runner.temp }}/python-cache
-        run: node --test tests/controller.test.cjs tests/ui.test.cjs tests/ui-polish.test.cjs tests/preferences-ui.test.cjs
+        run: node --test tests/controller.test.cjs tests/ui.test.cjs tests/ui-polish.test.cjs tests/preferences-ui.test.cjs tests/display-preferences.test.cjs
       - name: Standalone storage and required-file regressions
         env:
           TMPDIR: ${{ runner.temp }}

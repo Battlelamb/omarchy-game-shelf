@@ -14,7 +14,7 @@ test('Preset dialogs have fixed bounded 680 by 520 geometry, galleries keep thei
     ]) {
         for (const [name, expected] of [['width', expectedWidth], ['height', expectedHeight]]) {
             const expression = cardSource.match(new RegExp('\\b' + name + ': ([^\\n]+)'))[1];
-            assert.equal(vm.runInNewContext(expression, {Math, Style: {space: n => n}, root: {presetMode}, panel: {width: viewportWidth, height: viewportHeight}}), expected);
+            assert.equal(vm.runInNewContext(expression, {Math, rowMetrics:{height:16}, Style: {space: n => n}, root: {presetMode}, panel: {width: viewportWidth, height: viewportHeight}}), expected);
         }
     }
     assert.doesNotMatch(cardSource, /implicitHeight/);
@@ -32,11 +32,11 @@ test('Safety footer is localized plain text and wraps without claiming read-only
     assert.match(search, /implicitHeight: Style.space\(36\)/, 'Compact toolbar makes room for safety without losing three rows');
 });
 const space = n => n;
-function evaluate(name, context) { return vm.runInNewContext(binding(name), {Style: {space}, card: {compact: false}, ...context}); }
+function evaluate(name, context) { return vm.runInNewContext(binding(name), {Style: {space}, rowMetrics:{height:16},smallMetrics:{height:15},card: {compact: false}, ...context}); }
 
 test('Configure keeps the existing grid but fits three readable preset rows', () => {
     for (const width of [260, 584, 600]) {
-        const root = {presetMode: true, glyphMode: false};
+        const root = {presetMode: true, glyphMode: false,listMode:true,dense:false};
         assert.equal(evaluate('columns', {root, width}), 1);
         const height = evaluate('cellHeight', {root});
         assert.ok(height >= 76 && height <= 96, 'Three presets must fit without giant letter tiles');
@@ -100,7 +100,7 @@ test('Selected labels and authoritative detail remain readable in bounded wide a
 });
 
 test('Compact presets reserve space for three choices without dropping selected metadata', () => {
-    const height = evaluate('cellHeight', {root: {presetMode: true, glyphMode: false}, card: {compact: true}});
+    const height = evaluate('cellHeight', {root: {presetMode: true, glyphMode: false,listMode:true,dense:true}, card: {compact: true}});
     assert.ok(height <= 76, 'Compact preset rows must fit three choices');
     assert.ok(source.includes('spacing: card.compact ? Style.space(8) : Style.space(12)'));
     const hint = source.split('\n').find(line => line.includes('strings.t("keys")')) || '';
@@ -111,9 +111,9 @@ test('Preview sizing avoids feedback and compact detail grows with readable cont
     assert.doesNotMatch(source, /Layout.maximumHeight: parent.height/);
     const compact = source.slice(source.indexOf('objectName: "lego-compact-detail"'));
     const expression = compact.match(/Layout.preferredHeight: ([^\n]+)/)[1];
-    for (const [implicitHeight, expected] of [[32, 32], [43, 43], [160, 64]]) {
-        assert.equal(vm.runInNewContext(expression, {Style: {space: x => x}, compactLabels: {implicitHeight}}), expected);
+    for (const [title,body,swatches,expected] of [[32,15,0,59],[43,15,24,94],[260,30,24,240]]) {
+        assert.equal(vm.runInNewContext(expression, {Style: {space: x => x},compactTitle:{implicitHeight:title},smallMetrics:{height:body},compactSwatches:{implicitHeight:swatches}}), expected);
     }
     assert.doesNotMatch(expression, /parent\.height/);
-    assert.match(source, /anchors.verticalCenter: root.presetMode \? parent.verticalCenter : undefined/);
+    assert.match(source, /anchors.verticalCenter: root.listMode \? parent.verticalCenter : undefined/);
 });

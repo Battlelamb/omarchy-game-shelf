@@ -9,11 +9,20 @@ Bring local **Steam and Lutris** records into a searchable grid. Build an evenin
 
 [Install](#install-and-open) · [Controls](#controls) · [Preferences](#make-it-yours) · [Limits](#limits-and-safety) · [Backend reference](BACKEND.md)
 
-> **v0.3.0 · development/testing snapshot.** This is a source publication, not a stable release. Live open/close checks have passed; current client actions and full-shell upgrade/rollback remain unqualified. Launch acceptance is not proof of game startup or gameplay.
+> **v0.4.0 · development candidate, not a stable release.** Offline backend checks cover saved compatibility filtering and display schemas. Earlier open/close checks do not qualify this candidate; native UI integration, real client actions and full-shell upgrade/rollback remain separate gates. Launch acceptance is never proof of startup or gameplay. Installation follows the published branch, which may still be an earlier version.
 
-![Game Shelf native UI showing six fictional game tiles, with Pebble Paths selected and a details panel](preview.png)
+![Game Shelf 0.4.0 native Browse with illustrative catalogue data](preview.png)
 
-*Historical native Qt/Quickshell capture from an isolated headless compositor: six fictional example entries with original monogram artwork. No installed games are implied and actions were not exercised. This is not a v0.3.0 feature demonstration or a bundled library. [Preview provenance](docs/PREVIEW.md).*
+*Illustrative **0.4.0** native Qt component render with fictional/original example data. No installed library, desktop action or full-shell behavior is demonstrated. [Preview provenance](docs/PREVIEW.md).*
+
+<details>
+<summary>Preview native saved settings</summary>
+
+![Game Shelf 0.4.0 native Configure](configure-preview.png)
+
+*Illustrative Configure view; fields may scroll. The capture does not exercise Save or Reset.*
+
+</details>
 
 ## A library view, not another store
 
@@ -21,12 +30,13 @@ Bring local **Steam and Lutris** records into a searchable grid. Build an evenin
 | :--- | :--- |
 | Find something installed | Search bounded local Steam manifests and native/Flatpak Lutris databases |
 | Stay with one client | Provider filters with distinct native and Flatpak Lutris identities |
+| Reduce runtime-tool clutter | Optional **Hide compatibility tools**, using a small documented name heuristic |
 | Make an evening queue | Favorites and personal collections, such as an Evening group |
 | Return to a recent choice | Recent IDs recorded after accepted launch requests |
 | Inspect the files | **More → open folder**, using a freshly validated existing game directory |
 | See a familiar cover | Existing local PNG/JPEG artwork where supported, without fetching it |
 
-The default catalogue shows **installed records**. **Configure → Installed state → all / not-installed** includes only valid records already present in local metadata, not your online account library. Steam support tools can appear alongside games. Your results and artwork depend on your machine; no games or cover library are bundled.
+The default catalogue shows **installed records**. **Configure → Installed state → all / not-installed** includes only valid records already present in local metadata, not your online account library. Steam support tools can appear alongside games unless you enable the optional name filter. Your results and artwork depend on your machine; no games or cover library are bundled.
 
 ## Install and open
 
@@ -64,12 +74,12 @@ The `trigger.` prefix places it under the native **Trigger** category. Do not re
 | Input or control | Result |
 | :--- | :--- |
 | Type while the catalogue has focus | Search the current catalogue |
-| Arrow keys / Home / End | Navigate the grid / first match / last match |
+| Arrow keys / Home / End | Navigate the current grid or list / first match / last match |
 | Click a tile | Select only, without launching |
 | Enter / primary Launch button | Request launch through the matching client |
 | More | Toggle Favorite, open the game folder or manage collections |
 | View selector | Open All items, Favorites, Recent or a personal collection |
-| Configure | Save the default view, collection, provider and installed-state filter |
+| Configure | Save view, collection, provider, installed-state, compatibility and display choices |
 | Refresh | Rescan local metadata |
 | Esc / outside click | Dismiss; Esc from Configure returns to the catalogue |
 
@@ -77,7 +87,11 @@ The `trigger.` prefix places it under the native **Trigger** category. Do not re
 
 Select a game, open **More**, enter a **Collection name** and choose **Add/remove item**. For example, make an Evening group for a short list of choices. Collections organize selections; they do not launch multiple games or change client libraries. **Delete collection** deletes only the group.
 
-Open **Configure**, set your defaults and choose **Save settings**. Saved filters intersect, so a favorite from a different provider can be hidden. Recent updates after launch-helper acceptance, not after a game has been observed running; opening a folder does not add a recent launch.
+Open **Configure**, set your defaults and choose **Save settings**. Saved filters intersect, so a favorite from a different provider can be hidden.
+
+**Hide compatibility tools** saves `hideCompatibilityTools` (boolean, **false** by default). It hides labels starting with Proton or GE-Proton followed by a space, hyphen, digit or end of name; Steam Linux Runtime followed by a space, hyphen or end; and the exact name Steamworks Common Redistributables. Matching is case-insensitive over already bounded local names. This is **not a game-type database**: a similarly named game may be hidden and an unfamiliar tool may remain. Turn it off to inspect everything. It composes with provider, installed state, favorites and collections **before the display cap**; it does not uninstall or prohibit launching a valid installed record.
+
+Choose `density` **comfortable** / compact, `layout` **grid** / list and `sortOrder` **default** / name / favorites-first to suit a cover shelf or a compact library list. Bold choices are defaults; saved display choices do not change provider identity or action validation. Recent updates after launch-helper acceptance, not after a game has been observed running; opening a folder does not add a recent launch.
 
 Preferences survive source updates at:
 
@@ -107,11 +121,11 @@ env -u PYTHONPATH PATH=/usr/bin /usr/bin/python3 scripts/run-tests.py --backend-
 env -u PYTHONPATH PATH=/usr/bin bash test.sh
 ```
 
-The backend runner needs `bwrap`; the full suite also needs Node.js and the native Qt/Quickshell test dependencies. Historical previews and earlier checks do not qualify v0.3.0 actions, full-shell upgrade/rollback or long-soak behavior.
+The backend runner needs `bwrap`; the full suite also needs Node.js and the native Qt/Quickshell test dependencies. Historical previews and earlier checks do not qualify v0.4.0 native filtering/display controls, real client actions, full-shell upgrade/rollback or long-soak behavior.
 
 | Symptom | Check |
 | :--- | :--- |
-| A known game is missing | Clear the query and filters, then Refresh; only supported local records are scanned |
+| A known game is missing | Clear the query and filters, disable Hide compatibility tools, then Refresh; only supported local records are scanned |
 | Lutris changes are missing | Immutable reads ignore uncheckpointed WAL; close/checkpoint the client, then Refresh |
 | Native Lutris works but a Flatpak record fails | The clients are not interchangeable; install/configure the matching one |
 | Folder action is rejected | A fresh installed record must supply a valid existing directory; missing or unsafe metadata is not guessed |

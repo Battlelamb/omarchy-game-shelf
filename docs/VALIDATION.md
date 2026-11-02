@@ -1,8 +1,26 @@
-# Game Shelf: v0.3.0 candidate validation
+# Game Shelf
 
-> **Publication status:** this repository exposes the v0.3.0 development source, not a stable release. The runtime was installed for owner-authorized testing and the real panel opened, populated and closed without a shell restart. That observation does not qualify Apply/Restore, full nested upgrade/rollback or the missing Motion curve/speed features. Earlier qualification flags and failed/blocked gates below remain historical evidence, not claims about current repository visibility.
+## v0.4.0 offline verification
 
-## Current v0.3.0 — UNRELEASED, not release-qualified
+The shipped `env -u PYTHONPATH bash test.sh` completed with **59 Python passes, 1 explicit skips (60 discovered)** and **58 JavaScript component passes**. Its **23 native subprocess/settings cases** and **five native UI modes** also passed: wide, compact, tall-font and light-theme fixtures, with real Save/reopen/Reset readback and strict query-chip/control containment. These overlapping checks are not one aggregate score or real-provider/full-shell evidence.
+
+All nine packages passed the final combined invocation with unchanged runtime hashes. Earlier baseline failures and the 4/9 candidate run remain failed historical receipts. Fixture repairs use bounded observed readiness, disappearing-process reads and synchronized Shader conflict/Confirm admission without weakened assertions or longer native 12/16-second deadlines. The exact historical Motion timeout cause remains unproved.
+
+The final timeout harness (`4ed3b416d9a3eed324f28d24740f94aa5d5b19d1b80269f60b205f6c3b761720`) independently passed late-fork, separate-session, immutable early-evidence, PID-identity and unrelated-sentinel controls. Unprovable orphan ownership stays incomplete/nonzero, aborts later cases and relies on outer private-sandbox containment. Production/layout/backend and scoped metadata/fixture reviews passed; this is not a full security audit.
+
+Existing anchor-transition warnings remain, not warning-free operation. Measurements are diagnostic; feature growth adds bytes, with no universal speedup/FPS/resource reduction or debloat claim. Theme/wallpaper local search covers returned bounded rows. Motion curve/speed controls remain API-limited, not simulated.
+
+Runtime inventory SHA-256: `f869e6e5ba2c7a247d5ba707d251c28cf9a0611a1cca4dd946f1a13abeb04c7e` (sorted compact JSON of relative runtime paths to SHA-256 values). Runtime bytes match the fresh standalone-suite receipt. Browse/Configure previews are exact-source native Qt renders of illustrative metadata, not live user windows or action proof.
+
+**No installation, shell restart or live configuration change was performed this round.** Still unqualified: real-shell old/new/rollback and live actions, GPU, lock races, RTL/IME/accessibility, hotplug and longer isolated resources. The historical whole-shell resource failure stays failed. Hosted CI must be read on the exact pushed commit in Actions, separately from this local record. Source publication is not a stable release or marketplace promotion.
+
+## Historical checkpoints
+
+The following records describe their original versions and publication/install observations, not newer-candidate coverage.
+
+> **Historical publication checkpoint:** at that checkpoint, the repository exposed the v0.3.0 development source, not a stable release. The runtime was installed for owner-authorized testing and the real panel opened, populated and closed without a shell restart. That observation does not qualify Apply/Restore, full nested upgrade/rollback or the missing Motion curve/speed features. Earlier qualification flags and failed/blocked gates below remain historical evidence, not claims about current repository visibility.
+
+## Historical v0.3.0 — UNRELEASED, not release-qualified
 
 This package’s frozen v4 offline `bash test.sh` gate passed **50 Python tests out of 51 discovered** and **51 Node component tests**. 1 explicit skip: the shared Glyph real-CLI case belongs to Glyph Picker only. Package checks and shipped native subprocess/settings/panel checks also completed; those overlapping checks are separate from the Python/Node totals. Native Qt coverage uses offscreen components and adapter fixtures, not a real Omarchy shell or live provider. Runtime hashes still match the tested v4 bytes; these documentation changes do not acquire retroactive GUI coverage.
 
@@ -10,7 +28,7 @@ Independent remediation-closure and membership-optimization reviews passed their
 
 The all-nine real full-shell old/new/rollback gate is **FAILED_TO_RUN: 0/9 qualified**. Conservative GPU-resource admission blocked launch; the separate device-free compositor attempt failed before shell startup. Existing workloads were left untouched. Offscreen component tests are not a substitute. Motion’s requested subtle/snappy/smooth/expressive curves and speed remain unsupported and incomplete; original acceptance scope is not reduced. All nine candidates remain `qualification_passed: false`.
 
-**Current status: v0.3.0 is installed for owner-authorized testing, and this development source repository is public. No stable release is claimed.** Hosted CI status is reported by the repository workflow, not established by this local validation record. Any private fixture commits/source archives are offline qualification artifacts, not release commits or install approval. Long-soak/resource, real-shell lifecycle, live lock races and upgrade/rollback remain separate unqualified gates.
+**Historical owner-testing status: v0.3.0 was installed for owner-authorized testing, and this development source repository is public. No stable release is claimed.** Hosted CI status is reported by the repository workflow, not established by this local validation record. Any private fixture commits/source archives are offline qualification artifacts, not release commits or install approval. Long-soak/resource, real-shell lifecycle, live lock races and upgrade/rollback remain separate unqualified gates.
 
 ## Historical v0.2.1 and earlier — not v0.3.0 evidence
 

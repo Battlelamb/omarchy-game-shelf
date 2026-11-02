@@ -17,7 +17,7 @@ test('receipt Restore does not depend on filtered selection and still respects a
   const f=fixture();f.root.opened=true;f.root.matches=[];f.root.actions=['restore'];f.ctx[key].running=true;f.ctx.activate('restore');assert.equal(f.counts().actions,0,key);
  }
  const f=fixture();f.root.opened=true;f.root.matches=[];f.root.actions=['apply'];f.ctx.activate('restore');f.ctx.activate('apply');assert.equal(f.counts().actions,0);
- const line=src.split('\n').find(s=>s.includes('Button { text: strings.t("restore")'));
+ const line=src.split('\n').find(s=>s.includes('text: strings.t("restore")'));
  const enabled=line.match(/enabled: ([^;]+)/)[1];const ctx=vm.createContext({root:{actionBusy:false,selectedRow:null},catalogue:{running:false},action:{running:false},lockProbe:{running:false}});
  assert.equal(vm.runInContext(enabled,ctx),true);ctx.catalogue.running=true;assert.equal(vm.runInContext(enabled,ctx),false);
 });

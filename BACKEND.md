@@ -1,18 +1,18 @@
-# Game Shelf backend · v0.3.0
+# Game Shelf backend · v0.4.0
 
 ## Exact CLI
 
 From the checkout root:
 
 ```sh
-/usr/bin/python3 runtime/0.3.0/backend.py catalog
-/usr/bin/python3 runtime/0.3.0/backend.py preferences
-/usr/bin/python3 runtime/0.3.0/backend.py preferences --apply --payload '{"options":{"provider":"steam","installed":"all"}}'
-/usr/bin/python3 runtime/0.3.0/backend.py preferences --apply --payload '{"collections":{"Evening":["steam:42","lutris:native:7"]},"options":{"collection":"Evening"}}'
-/usr/bin/python3 runtime/0.3.0/backend.py preferences --apply --payload '{"reset":true}'
-/usr/bin/python3 runtime/0.3.0/backend.py action --id steam:42 --verb launch --apply
-/usr/bin/python3 runtime/0.3.0/backend.py action --id steam:42 --verb open-folder --apply
-/usr/bin/python3 runtime/0.3.0/backend.py action --id steam:42 --verb favorite --apply
+/usr/bin/python3 runtime/0.4.0/backend.py catalog
+/usr/bin/python3 runtime/0.4.0/backend.py preferences
+/usr/bin/python3 runtime/0.4.0/backend.py preferences --apply --payload '{"options":{"provider":"steam","installed":"all","hideCompatibilityTools":true}}'
+/usr/bin/python3 runtime/0.4.0/backend.py preferences --apply --payload '{"collections":{"Evening":["steam:42","lutris:native:7"]},"options":{"collection":"Evening"}}'
+/usr/bin/python3 runtime/0.4.0/backend.py preferences --apply --payload '{"reset":true}'
+/usr/bin/python3 runtime/0.4.0/backend.py action --id steam:42 --verb launch --apply
+/usr/bin/python3 runtime/0.4.0/backend.py action --id steam:42 --verb open-folder --apply
+/usr/bin/python3 runtime/0.4.0/backend.py action --id steam:42 --verb favorite --apply
 ```
 
 Use exact IDs from your own local catalogue; sample IDs above do not assert installed games. These are all commands and verbs. `launch` is primary, `open-folder` and `favorite` secondary. No Restore, store, downloads, installer, arbitrary command/database/root/output path. Actions accept no payload. Catalogue and preference reads are nonmutating; every write/action requires `--apply`. Invalid arguments/fields/IDs/verbs fail with nonzero exit and a single JSON error, never a traceback or provider-output dump. Runtime paths derive from `__file__`, not cwd.
@@ -27,8 +27,14 @@ Catalogue output preserves rows/actions/actionLabel/message and adds preferences
 | `collection` | string, empty | Exact personal collection name <=256 characters; empty = all |
 | `provider` | enum, `all` | `all`, `steam`, `lutris-native`, `lutris-flatpak` |
 | `installed` | enum, `installed` | `installed`, `all`, `not-installed` |
+| `hideCompatibilityTools` | boolean, `false` | Actual JSON `true` / `false`, not strings or integers |
+| `density` | enum, `comfortable` | `comfortable`, `compact` |
+| `layout` | enum, `grid` | `grid`, `list` |
+| `sortOrder` | enum, `default` | `default`, `name`, `favorites-first` |
 
-Filters intersect before the display cap; Recent retains saved order. All/not-installed means known local metadata only, not an online library scan. Unknown personal collection names yield no rows. Favorite membership may include a freshly validated uninstalled local record; launch/open-folder still require the fresh installed membership scan, ignoring display filters. Saving arbitrary IDs never authorizes a client request.
+The three display enums are saved for the native view to interpret; they do not alter source membership or action dispatch. Old valid stores missing these keys receive the defaults on read without an automatic rewrite. Existing options, favorites, Recent and collections remain intact; Reset includes the new defaults.
+
+Filters intersect before the display cap; Recent retains saved order. `hideCompatibilityTools` is an optional, case-insensitive bounded **name heuristic**, not a game-type database: `^(?:(?:ge-)?proton(?:$|[ 0-9-])|steam linux runtime(?:$|[ -])|steamworks common redistributables$)`. It inspects admitted labels only (<=160 characters), applies to all providers, and does not inspect runner names, execute a client or consult AppID lists. False positives/negatives are possible. Disabled by default, it composes with provider/installed/view/collection filters before row/byte capping; action authorization still uses full fresh installed membership. All/not-installed means known local metadata only, not an online library scan. Unknown personal collection names yield no rows. Favorite membership may include a freshly validated uninstalled local record; launch/open-folder still require the fresh installed membership scan, ignoring display filters. Saving arbitrary IDs never authorizes a client request.
 
 Preference patches accept only options/favorites/collections. Options merge; a supplied favorites list or collections object replaces that whole section. Sole-key `{"reset":true}` resets preferences. Recent/version writes are forbidden. JSON object payload <=16,384 UTF-8 bytes; no duplicate keys, nonfinite numbers, unknown options, wrong types, controls or oversized lists/IDs. Sibling preferences.py enforces private, owned regular-file storage without following symlinks, bounded reads, locking and atomic replace; corruption fails without overwriting it. Reads create nothing. Storage: absolute `$XDG_CONFIG_HOME/omarchy/lego/game-shelf/preferences.json`, otherwise `$HOME/.config/omarchy/lego/game-shelf/preferences.json`. Maximum 512 favorites, 32 recents, 64 collections and 512 IDs per collection; IDs are nonempty control-free strings <=256 characters. Reset affects no game/client data.
 
@@ -58,4 +64,4 @@ Helpers use literal argument vectors on normal PATH with discarded stdin/stdout/
 TMPDIR="${TMPDIR:?Set TMPDIR to an existing private scratch directory}" env -u PYTHONPATH PATH=/usr/bin /usr/bin/python3 scripts/run-tests.py --backend-only
 ```
 
-All tests run through the shipped offline bwrap runner: cleared environment, fake HOME, no live sockets/network and production setters masked. Real VDF/SQLite/CLI parsing, private executable shims, folder readback, no-artwork action scans, failed-helper/deadline/descendant tests, preference validation and every shipped Python source compilation are covered. Fixtures establish adapter boundaries, not real installed-client behavior. Ignored release-output/v030-result.json records the final suite count, hashes and immutable RED/GREEN receipts. GUI, upgrade/rollback, hosted CI and publication are separate parent gates.
+All tests run through the shipped offline bwrap runner: cleared environment, fake HOME, no live sockets/network and production setters masked. Real VDF/SQLite/CLI parsing, private executable shims, folder readback, no-artwork action scans, failed-helper/deadline/descendant tests, preference validation and every shipped Python source compilation are covered. Fixtures establish adapter boundaries, not real installed-client behavior. Earlier release-output/v030-result.json describes v0.3.0 only. Current tests also cover compatibility-name boundaries, provider/installed/favorite/collection composition before display capping, strict boolean persistence/reset and saved-display-schema validation/migration. Native UI, real client integration, upgrade/rollback, hosted CI and publication are separate gates.

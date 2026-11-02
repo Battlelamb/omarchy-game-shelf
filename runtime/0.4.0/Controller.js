@@ -42,10 +42,11 @@ function catalog(raw) {
     return result;
 }
 function actionVerbs() {
-    return ['copy','launch','apply','export','favorite','restore','confirm','capture','import','export-preset','preview','compare','copy-codepoint','open-folder','shuffle','copy-color'];
+    return ['copy','launch','apply','export','favorite','restore','confirm','capture','import','export-preset','preview','compare','copy-codepoint','open-folder','shuffle','copy-color','copy-unicode','copy-app-id','copy-css'];
 }
-function primaryVerb(actions) {
-    return actions.filter(function(a){return ['copy','launch','apply','export'].indexOf(a)!==-1;})[0]||'';
+function primaryVerb(actions,options) {
+    var primary=actions.filter(function(a){return ['copy','launch','apply','export'].indexOf(a)!==-1;})[0]||'';
+    return primary==='apply' && options && options.primaryAction==='preview' && actions.indexOf('preview')>=0 ? 'preview' : primary;
 }
 function plainObject(v) { return v!==null&&typeof v==='object'&&!Array.isArray(v); }
 function preferenceText(v,max) {
@@ -133,7 +134,21 @@ function viewRows(rows,query,prefs,view,category,provider,installed) {
             return (!ids||members[r.id]===true)&&(!category||r.category===category)&&(!provider||r.provider===provider)&&(!installed||(installed==='installed'?r.installed===true:r.installed===false));
         });
     }
-    if(view==='recent') selected.sort(function(a,b){return ids.indexOf(a.id)-ids.indexOf(b.id);});
+    // Recent is an explicit recency view; other views use the saved display order.
+    if(view==='recent') selected=selected.slice().sort(function(a,b){return ids.indexOf(a.id)-ids.indexOf(b.id);});
+    else {
+        var order=prefs.options && prefs.options.sortOrder;
+        if(order==='name'||order==='favorites-first') {
+            var favorites=Object.create(null);
+            (prefs.favorites||[]).forEach(function(id){favorites[id]=true;});
+            selected=selected.map(function(row,index){return {row:row,index:index};}).sort(function(a,b){
+                var delta=0;
+                if(order==='favorites-first') delta=Number(favorites[b.row.id]===true)-Number(favorites[a.row.id]===true);
+                else {var left=a.row.label.toLowerCase(),right=b.row.label.toLowerCase();delta=left<right?-1:left>right?1:0;}
+                return delta || a.index-b.index;
+            }).map(function(entry){return entry.row;});
+        }
+    }
     return filter(selected,query);
 }
 function imageUrl(path) {

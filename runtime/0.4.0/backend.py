@@ -21,6 +21,10 @@ import preferences
 
 SLUG = 'game-shelf'
 PREFERENCE_SCHEMA = {
+    'hideCompatibilityTools': {'type':'boolean', 'default':False, 'label':'Hide compatibility tools (name heuristic)'},
+    'density': {'type':'enum', 'default':'comfortable', 'label':'Density', 'choices':['comfortable','compact']},
+    'layout': {'type':'enum', 'default':'grid', 'label':'Layout', 'choices':['grid','list']},
+    'sortOrder': {'type':'enum', 'default':'default', 'label':'Sort order', 'choices':['default','name','favorites-first']},
     'view': {'type':'enum', 'default':'all', 'label':'Show', 'choices':['all','favorites','recent']},
     'collection': {'type':'string', 'default':'', 'label':'Personal collection (empty = all)', 'maxLength':256},
     'provider': {'type':'enum', 'default':'all', 'label':'Provider', 'choices':['all','steam','lutris-native','lutris-flatpak']},
@@ -343,6 +347,10 @@ def catalog():
         rows = [row for row in rows if row['provider'] == provider]
     if options['installed'] == 'not-installed':
         rows = [row for row in rows if not row['installed']]
+    if options['hideCompatibilityTools']:
+        # shortcut: names only, not game types; revise when providers offer authoritative metadata.
+        pattern = r'^(?:(?:ge-)?proton(?:$|[ 0-9-])|steam linux runtime(?:$|[ -])|steamworks common redistributables$)'
+        rows = [row for row in rows if not re.search(pattern, row['label'], re.IGNORECASE)]
     shown = displayed_rows(rows)
     if len(shown) < len(rows):
         message += ' Display limited; full scanned membership remains validated for actions.'

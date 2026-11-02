@@ -31,6 +31,7 @@ let passed = 0;
 function run(name, body, {missingTimeout = false, limit = 1024, childPidFile = ''} = {}) {
   if (process.env.NATIVE_IO_CASE && !name.includes(process.env.NATIVE_IO_CASE)) return;
   if (childPidFile) fs.rmSync(childPidFile, {force:true});
+  if (childPidFile === '/tmp/native-grandchild.pid') fs.rmSync('/tmp/native-grandchild-work', {force:true});
   const dir = fs.mkdtempSync('/tmp/native-io-');
   fs.copyFileSync(require('./runtime-path.cjs')('Controller.js'), dir + '/Controller.js');
   assert.ok(helper.includes('StdioCollector { id: collected }'), 'collector observation must attach');
@@ -119,6 +120,17 @@ pathlib.Path('/tmp/native-grandchild.pid').write_text(str(os.getpid()))
 while True:
  with open('/tmp/native-grandchild-work','a') as f: f.write('tick\\n')
  time.sleep(.01)`;
+// Observe both process identity and actual work before cancellation/teardown.
+const readinessCommand = JSON.stringify(['/usr/bin/python3','-c',`import pathlib,time
+pidfile=pathlib.Path(${JSON.stringify(process.env.NATIVE_IO_NEVER_READY ? '/tmp/never-ready' : '/tmp/native-grandchild.pid')})
+work=pathlib.Path('/tmp/native-grandchild-work'); began=time.monotonic()
+while time.monotonic()-began<1.2:
+ if pidfile.exists() and work.exists() and work.stat().st_size>0:
+  pid=pidfile.read_text().strip()
+  if pid.isdigit() and (pathlib.Path('/proc')/pid/'stat').exists():
+   print('ready:'+pid,end='');break
+ time.sleep(.01)
+else: raise SystemExit('fixture readiness deadline')`]);
 run('cancel acknowledgment includes a TERM-ignoring grandchild', `
  property bool cancelled: false
  property bool verifying: false
@@ -128,10 +140,18 @@ run('cancel acknowledgment includes a TERM-ignoring grandchild', `
      console.log("PASS native-case"); Qt.exit(0);
    });
    io.command = ${JSON.stringify(['/usr/bin/python3', '-c', `import subprocess,time
+time.sleep(.45)  # Deterministic cold-start scheduling control.
 subprocess.Popen(['/usr/bin/python3','-c',${JSON.stringify(grandchild)}],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 time.sleep(30)`])}; io.start();
  }
- Timer { interval: 250; running: true; onTriggered: { io.cancel(); cancelled = true; } }
+ BoundedProcess {
+  id: ready; command: ${readinessCommand}
+  onCompleted: (code,status,text,error) => {
+   if(code!==0 || error!=="" || text.indexOf("ready:")!==0) {check(false,"fixture readiness deadline before cancellation");return;}
+   console.log("READY grandchild "+text);io.cancel();cancelled=true;
+  }
+  Component.onCompleted: start()
+ }
  Timer { interval: 25; running: true; repeat: true; onTriggered: {
    if (cancelled && !verifying && !io.running) {
      verifying = true;
@@ -244,10 +264,18 @@ run('owner teardown drains TERM-ignoring grandchild on independent deadline', `
  Loader { id: disappearing; sourceComponent: Component { BoundedProcess {} } }
  Component.onCompleted: {
    disappearing.item.command = ${JSON.stringify(['/usr/bin/python3', '-c', `import subprocess,time
+time.sleep(.45)  # Deterministic cold-start scheduling control.
 subprocess.Popen(['/usr/bin/python3','-c',${JSON.stringify(grandchild)}],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 time.sleep(30)`])}; disappearing.item.start();
  }
- Timer { interval: 250; running: true; onTriggered: disappearing.active = false }
+ BoundedProcess {
+  command: ${readinessCommand}
+  onCompleted: (code,status,text,error) => {
+   if(code!==0 || error!=="" || text.indexOf("ready:")!==0) {check(false,"fixture readiness deadline before teardown");return;}
+   console.log("READY grandchild "+text);disappearing.active=false;
+  }
+  Component.onCompleted: start()
+ }
  Timer { interval: 4100; running: true; onTriggered: { console.log("PASS native-case"); Qt.exit(0); } }
 `, {childPidFile:'/tmp/native-grandchild.pid'});
 // Record the real pipeline process group before cancellation; no host PIDs enter this fixture.

@@ -1,7 +1,12 @@
 # Component CI scope
 
-The independent GitHub Actions workflow uses read-only repository permissions and a full-commit-pinned checkout with credential persistence disabled. It runs the Node controller/UI/polish source-contract tests, the Python package-identity checker, and Python syntax compilation. It installs no plugin and runs no desktop action.
+The independent [workflow](../.github/workflows/ci.yml) uses read-only repository permissions, a full-commit-pinned checkout and disabled credential persistence. It runs:
 
-It deliberately does **not** run backend action/provider tests, native Qt checks, the native runner/receipt tests, GPU trials, live IPC, long-soak/resource tests, accessibility, RTL or display scaling. Those require separate local qualification; a green component job is not proof of them.
+- Package identity checks and Python syntax compilation.
+- Node controller/UI/polish, preferences-editor and saved-display contracts.
+- Standalone Python preference-store regressions in a cleared, temporary fake HOME.
+- Copied-package missing-file controls for the required standalone files.
 
-Hosted CI has not run. The exact component commands are exercised locally in a private offline namespace before sealing; this is not a GitHub-hosted result. After publication, require the real hosted run on the exact published commit before calling hosted CI green.
+It installs no plugin and performs no desktop action. It does **not** run domain backend/provider actions, native Qt/process tests, GPU trials, live IPC, full-shell upgrade/rollback, long-soak/resource, accessibility, RTL or scaling qualification. A green component job is not evidence for those.
+
+Check [GitHub Actions](https://github.com/Battlelamb/omarchy-game-shelf/actions/workflows/ci.yml) on the exact published commit for hosted status. Local component results do not establish a GitHub-hosted pass.
