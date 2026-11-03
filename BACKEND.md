@@ -1,18 +1,18 @@
-# Game Shelf backend · v0.4.0
+# Game Shelf backend · v0.4.1
 
 ## Exact CLI
 
 From the checkout root:
 
 ```sh
-/usr/bin/python3 runtime/0.4.0/backend.py catalog
-/usr/bin/python3 runtime/0.4.0/backend.py preferences
-/usr/bin/python3 runtime/0.4.0/backend.py preferences --apply --payload '{"options":{"provider":"steam","installed":"all","hideCompatibilityTools":true}}'
-/usr/bin/python3 runtime/0.4.0/backend.py preferences --apply --payload '{"collections":{"Evening":["steam:42","lutris:native:7"]},"options":{"collection":"Evening"}}'
-/usr/bin/python3 runtime/0.4.0/backend.py preferences --apply --payload '{"reset":true}'
-/usr/bin/python3 runtime/0.4.0/backend.py action --id steam:42 --verb launch --apply
-/usr/bin/python3 runtime/0.4.0/backend.py action --id steam:42 --verb open-folder --apply
-/usr/bin/python3 runtime/0.4.0/backend.py action --id steam:42 --verb favorite --apply
+/usr/bin/python3 runtime/0.4.1/backend.py catalog
+/usr/bin/python3 runtime/0.4.1/backend.py preferences
+/usr/bin/python3 runtime/0.4.1/backend.py preferences --apply --payload '{"options":{"provider":"steam","installed":"all","hideCompatibilityTools":true}}'
+/usr/bin/python3 runtime/0.4.1/backend.py preferences --apply --payload '{"collections":{"Evening":["steam:42","lutris:native:7"]},"options":{"collection":"Evening"}}'
+/usr/bin/python3 runtime/0.4.1/backend.py preferences --apply --payload '{"reset":true}'
+/usr/bin/python3 runtime/0.4.1/backend.py action --id steam:42 --verb launch --apply
+/usr/bin/python3 runtime/0.4.1/backend.py action --id steam:42 --verb open-folder --apply
+/usr/bin/python3 runtime/0.4.1/backend.py action --id steam:42 --verb favorite --apply
 ```
 
 Use exact IDs from your own local catalogue; sample IDs above do not assert installed games. These are all commands and verbs. `launch` is primary, `open-folder` and `favorite` secondary. No Restore, store, downloads, installer, arbitrary command/database/root/output path. Actions accept no payload. Catalogue and preference reads are nonmutating; every write/action requires `--apply`. Invalid arguments/fields/IDs/verbs fail with nonzero exit and a single JSON error, never a traceback or provider-output dump. Runtime paths derive from `__file__`, not cwd.

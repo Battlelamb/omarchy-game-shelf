@@ -29,7 +29,7 @@ test('panel consumes density and both layouts for galleries and presets without 
   assert.equal(binding('dense',root),true);
  }
  assert.match(src,/Controller.primaryVerb\(actions, root.settingsSchema.primaryAction \? root.preferences.options : null\)/);
- assert.match(src,/function featureRevision\(\) \{ return '0.4.0'; \}/);
+ assert.match(src,/function featureRevision\(\) \{ return '0.4.1'; \}/);
  for(const verb of ['copy-unicode','copy-app-id','copy-css'])assert.ok(JSON.parse(fs.readFileSync(path.join(paths.runtime,'i18n/en.json'),'utf8'))[verb]);
  assert.match(src,/text:strings.t\(modelData\)/);
 });
@@ -69,4 +69,35 @@ test('saved sort is stable, nonmutating, and precedes the display cap',()=>{
  prefs.options.sortOrder='unknown';assert.equal(api.viewRows(rows,'',prefs,'all','','','')[0].id,'0');
  prefs.recent=['299','2'];assert.deepEqual(ids(api.viewRows(rows,'',prefs,'recent','','','')),['299','2']);
  assert.equal(JSON.stringify(rows),before);
+});
+
+test('public identity, runtime revision and stable preference slug match the manifest',()=>{
+ const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'../manifest.json'),'utf8'));
+ const backend=fs.readFileSync(path.join(paths.runtime,'backend.py'),'utf8');
+ const slug=backend.match(/^SLUG = '([a-z-]+)'$/m)[1];
+ assert.equal(manifest.id,'battlelamb.'+slug);
+ assert.equal(manifest.author,'Battlelamb');
+ assert.equal(manifest.version,'0.4.1');
+ assert.equal(manifest.entryPoints.overlay,'runtime/'+manifest.version+'/'+path.basename(paths.panel));
+ assert.deepEqual(fs.readdirSync(path.join(__dirname,'../runtime')),[manifest.version]);
+ const source=fs.readFileSync(paths.panel,'utf8');
+ assert.ok(source.includes('WlrLayershell.namespace: "battlelamb-'+slug+'"'));
+ assert.ok(source.includes("function featureRevision() { return '"+manifest.version+"'; }"));
+ assert.ok(fs.readFileSync(path.join(__dirname,'../README.md'),'utf8').includes('omarchy/lego/'+slug+'/preferences.json'));
+});
+test('current public files contain no machine-specific paths or personal manifest metadata',()=>{
+ const root=path.resolve(__dirname,'..');
+ function inspect(directory) {
+  for(const entry of fs.readdirSync(directory,{withFileTypes:true})) {
+   if(['.git','release-output','__pycache__'].includes(entry.name)||entry.name.includes('.bak-'))continue;
+   const file=path.join(directory,entry.name);
+   if(entry.isDirectory()) {inspect(file);continue;}
+   const bytes=fs.readFileSync(file);if(bytes.includes(0))continue;
+   const text=bytes.toString('utf8');
+   assert.doesNotMatch(text,/\/home\/(?!test(?:\/|['"\s])|user(?:\/|['"\s]))[a-zA-Z0-9_.-]+\//,path.relative(root,file));
+   assert.doesNotMatch(text,/\/srv\/[a-zA-Z0-9_.-]+\//,path.relative(root,file));
+   if(entry.name==='manifest.json')assert.equal(JSON.parse(text).author,'Battlelamb');
+  }
+ }
+ inspect(root);
 });

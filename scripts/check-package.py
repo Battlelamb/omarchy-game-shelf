@@ -3,8 +3,8 @@ from pathlib import Path
 import json
 r=Path(__file__).resolve().parents[1]
 m=json.loads((r/'manifest.json').read_text())
-assert m['schemaVersion']==1 and m['version']=='0.4.0','Stale release version'
-assert m['id'].startswith('leviathan.') and m['kinds']==['overlay']
+assert m['schemaVersion']==1 and m['version']=='0.4.1','Stale release version'
+assert m['id'].startswith('battlelamb.') and m['author']=='Battlelamb' and m['kinds']==['overlay']
 assert m.get('keepLoaded') is True,'Keep helper ownership across native host hide/unload'
 runtime=Path('runtime')/m['version'];entry=Path(m['entryPoints']['overlay'])
 assert entry.parent==runtime and entry.suffix=='.qml' and (r/entry).is_file(),'Entry must be a direct sibling of its versioned runtime'

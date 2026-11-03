@@ -13,7 +13,7 @@ roots=[ROOT] if (ROOT/'manifest.json').is_file() else sorted((ROOT/'candidates')
 for root in roots:
     runtime=Path(json.loads((root/'manifest.json').read_text())['entryPoints']['overlay']).parent
     required=[runtime/'preferences.py',runtime/'Settings.qml', *[Path('tests')/name for name in ['test_shared_preferences.py','preferences-ui.test.cjs','display-preferences.test.cjs','shared_paths.py','shared-paths.cjs','panel-functions.cjs','native-settings.py','native-panels.py','shared-packaging.py']]]
-    if json.loads((root/'manifest.json').read_text())['id']=='leviathan.shader-deck':
+    if json.loads((root/'manifest.json').read_text())['id']=='battlelamb.shader-deck':
         required += [runtime/'data/comparisons/grayscale-ramp'/(name+'.png') for name in ['cool','dim','grayscale','sepia','softcontrast','warm']]
     for name in required:
         assert (root/name).is_file(),f'{root.name}: missing standalone {name}'

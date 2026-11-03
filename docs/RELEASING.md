@@ -1,7 +1,7 @@
-# Release gates
+# Release checks
 
-1. Require the exact candidate's package/offline backend/controller/native tests, native wide/compact geometry and pixels, upgrade/rollback proof, connected read-only independent review and committed tested-blob equivalence. Keep failed evidence private and immutable.
-2. Keep the full license and pinned donor/dataset notices. No copyrighted wallpaper/game artwork, private desktop captures, credentials or raw local process/provider logs in exports. Previews are optional, not invented product evidence.
-3. Build a deterministic current-commit source tarball with SHA256SUMS; verify unpacked files, native manifest validation and independence from all other Lego plugins. No source history or ignored evidence is bundled.
-4. Owner approval is required for the concrete public repository, initial source publication, tag/release and marketplace submission. Publish a reviewed **clean current-source export**, not private local development history. Until approved, proposed URLs and checklist items stay unconfirmed.
-5. After publication, verify exact remote commit, CI, tag target, release assets/bytes and deployed marketplace commit before claiming success. Hosted CI and marketplace approval are not implied by local checks. Never retarget a published tag. Runtime releases advance their versioned path; retain rollback and do not restart the lock-hosting shell to mask stale QML.
+1. Run exact-source package, offline backend/controller/native tests and native wide/compact geometry checks. Verify upgrade/rollback separately and review the final diff; local checks are not live-action or hosted-CI proof.
+2. Preserve the full license, required attribution and pinned donor/dataset provenance. Review optional previews for rights and private metadata; do not include private captures, credentials or raw provider/process logs.
+3. Verify deterministic source-archive membership, modes, bytes and SHA256SUMS against the committed tree. Validate the extracted manifest and standalone operation. Exclude ignored backups and test artifacts from archives.
+4. Preserve published Git history and existing tag targets. Runtime releases advance their single versioned path. A namespace change needs explicit enabled/menu/launcher reference updates and a backup; retain the stable preference path and rollback option.
+5. Publish only with authorization for the concrete repository, tag/release and marketplace target. Read back the exact remote commit, hosted CI, tag target, release assets and deployed marketplace commit before reporting those outcomes. Do not restart the lock-hosting shell to hide stale QML.

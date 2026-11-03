@@ -9,7 +9,7 @@ Bring local **Steam and Lutris** records into a searchable grid. Build an evenin
 
 [Install](#install-and-open) · [Controls](#controls) · [Preferences](#make-it-yours) · [Limits](#limits-and-safety) · [Backend reference](BACKEND.md)
 
-> **v0.4.0 · development candidate, not a stable release.** Offline backend checks cover saved compatibility filtering and display schemas. Earlier open/close checks do not qualify this candidate; native UI integration, real client actions and full-shell upgrade/rollback remain separate gates. Launch acceptance is never proof of startup or gameplay. Installation follows the published branch, which may still be an earlier version.
+> **v0.4.1 · development candidate, not a stable release.** Public namespace and metadata update; backend actions and saved preferences are unchanged. Earlier checks do not qualify this patch: full offline, live actions, native integration and full-shell upgrade/rollback require separate verification. Installation follows the published branch, which may still be an earlier version.
 
 ![Game Shelf 0.4.0 native Browse with illustrative catalogue data](preview.png)
 
@@ -38,6 +38,10 @@ Bring local **Steam and Lutris** records into a searchable grid. Build an evenin
 
 The default catalogue shows **installed records**. **Configure → Installed state → all / not-installed** includes only valid records already present in local metadata, not your online account library. Steam support tools can appear alongside games unless you enable the optional name filter. Your results and artwork depend on your machine; no games or cover library are bundled.
 
+## Namespace migration in 0.4.1
+
+The plugin now uses `battlelamb.game-shelf`. Existing enabled-plugin, menu and launcher references need an explicit update; a normal source updater cannot silently rename a manifest ID. Back up those references before changing them. Preferences remain at the same `omarchy/lego/game-shelf/preferences.json` path, so no preference migration or reset is needed.
+
 ## Install and open
 
 Requires **Omarchy Quattro** with compatible Quickshell/Qt, `qs.Ui` and `qs.Commons`, system Python 3 and GNU `timeout`. Discovery does not require a running client; launching requires the matching Steam or Lutris installation. Flatpak requests require the corresponding installed Flatpak application. Opening folders uses `xdg-open`.
@@ -46,7 +50,7 @@ Review the source before enabling this testing snapshot:
 
 ```sh
 omarchy plugin add https://github.com/Battlelamb/omarchy-game-shelf.git --enable
-omarchy-shell shell summon leviathan.game-shelf
+omarchy-shell shell summon battlelamb.game-shelf
 ```
 
 No shared hub, companion plugin or background indexing service is required.
@@ -60,7 +64,7 @@ Installation does **not** add a menu entry or hotkey. Back up `~/.config/omarchy
 {
   "trigger.game-shelf": {
     "label": "Game Shelf",
-    "action": "omarchy-shell shell summon leviathan.game-shelf"
+    "action": "omarchy-shell shell summon battlelamb.game-shelf"
   }
 }
 ```
@@ -121,7 +125,7 @@ env -u PYTHONPATH PATH=/usr/bin /usr/bin/python3 scripts/run-tests.py --backend-
 env -u PYTHONPATH PATH=/usr/bin bash test.sh
 ```
 
-The backend runner needs `bwrap`; the full suite also needs Node.js and the native Qt/Quickshell test dependencies. Historical previews and earlier checks do not qualify v0.4.0 native filtering/display controls, real client actions, full-shell upgrade/rollback or long-soak behavior.
+The backend runner needs `bwrap`; the full suite also needs Node.js and the native Qt/Quickshell test dependencies. Historical previews and earlier checks do not qualify v0.4.1 native filtering/display controls, real client actions, full-shell upgrade/rollback or long-soak behavior.
 
 | Symptom | Check |
 | :--- | :--- |
@@ -139,8 +143,8 @@ See [BACKEND.md](BACKEND.md) for exact provider roots, CLI commands, bounds and 
 <summary><strong>Disable or remove</strong></summary>
 
 ```sh
-omarchy plugin disable leviathan.game-shelf
-omarchy plugin remove leviathan.game-shelf
+omarchy plugin disable battlelamb.game-shelf
+omarchy plugin remove battlelamb.game-shelf
 ```
 
 Remove your optional menu entry separately. Use Reset first if you want this plugin's saved preferences cleared; do not delete client databases to reset the shelf.

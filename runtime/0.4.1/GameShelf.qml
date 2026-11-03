@@ -61,7 +61,7 @@ Item {
         root.reconcileSelection();
         Qt.callLater(function() { if (root.opened) grid.positionViewAtIndex(root.selected, GridView.Contain); });
     }
-    function featureRevision() { return '0.4.0'; }
+    function featureRevision() { return '0.4.1'; }
     function clearFilters() {
         root.query="";root.categoryFilter="";root.providerFilter="";root.installedFilter="";root.selected=0;
         keyboard.forceActiveFocus();
@@ -266,7 +266,7 @@ Item {
     OverlayWindow {
         id: panel
         shown: root.opened
-        WlrLayershell.namespace: "leviathan-game-shelf"
+        WlrLayershell.namespace: "battlelamb-game-shelf"
         onTargetScreenChanged: if (root.opened && !targetScreen) root.dismiss()
         Rectangle { anchors.fill: parent; color: Commons.Color.menu.scrim }
         MouseArea { anchors.fill: parent; onClicked: root.dismiss() }

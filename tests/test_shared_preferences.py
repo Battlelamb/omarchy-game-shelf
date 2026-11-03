@@ -121,8 +121,9 @@ class PreferencesContract(unittest.TestCase):
         import json
         import subprocess
         from shared_paths import ROOT
-        runtime=(MODULE.parent if (ROOT/'manifest.json').is_file() else ROOT/'candidates/omarchy-glyph-picker/runtime/0.3.0')
-        if (ROOT/'manifest.json').is_file() and json.loads((ROOT/'manifest.json').read_text())['id']!='leviathan.glyph-picker':
+        package=ROOT if (ROOT/'manifest.json').is_file() else ROOT/'candidates/omarchy-glyph-picker'
+        runtime=(package/json.loads((package/'manifest.json').read_text())['entryPoints']['overlay']).parent
+        if (ROOT/'manifest.json').is_file() and json.loads((ROOT/'manifest.json').read_text())['id']!='battlelamb.glyph-picker':
             self.skipTest('glyph real-CLI integration belongs to Glyph Picker only')
         backend=runtime/'backend.py'
         def call(*args,env=None):
